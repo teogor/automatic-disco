@@ -107,7 +107,12 @@ jobs:
 #          fi
 
       - name: Print contents of Screen UI Module
-        run: ls $PWD/screen/ui/
+        run: |
+          if [ -d "$PWD/screen/ui/build/generated/querent" ]; then
+            ls -R $PWD/screen/ui/build/generated/querent
+          else
+            echo "The querent directory does not exist"
+          fi
 
       - name: Publish Specified Modules
         env:
