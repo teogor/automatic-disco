@@ -84,8 +84,11 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Print current directory
-        run: pwd
+      - name: Print contents of directory
+        run: ls pwd/screen/ui/
+        
+      - name: Print contents of directory recursively
+        run: ls -R pwd/screen/ui/
 
       - name: Build Project
         run: ./gradlew build
