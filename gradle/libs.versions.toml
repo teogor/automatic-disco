@@ -188,10 +188,6 @@ kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 jdom2 = { module = "org.jdom:jdom2", version.ref = "jdom2" }
 xenoglot-bom = { group = "dev.teogor.xenoglot", name = "bom", version.ref = "xenoglot-bom" }
 xenoglot-android = { group = "dev.teogor.xenoglot", name = "android" }
-xenoglot-core = { group = "dev.teogor.xenoglot", name = "core" }
-kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
-kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlin-gradle-plugin-api = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlin" }
 
 # Dependencies of the included build-logic
 gradle-plugin-android = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradle-plugin" }
@@ -216,7 +212,9 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
-querent = { id = "dev.teogor.querent", version = "1.0.0-alpha02-SNAPSHOT-ba38b17" }
+# TODO: Temporary workaround until next release
+#  Use version 1.0.0-alpha03-SNAPSHOT-8f9a736 for the querent module
+querent = { id = "dev.teogor.querent", version = "1.0.0-alpha03-SNAPSHOT-8f9a736" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 vanniktech-maven = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechMavenPlugin" }
 winds = { id = "dev.teogor.winds", version.ref = "winds" }
