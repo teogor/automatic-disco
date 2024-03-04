@@ -31,6 +31,6 @@ android {
 winds {
   mavenPublish {
     displayName = "Remote-Config"
-    name = "remoteconfig"
+    name = "remote-config"
   }
 }

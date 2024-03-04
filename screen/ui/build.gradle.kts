@@ -24,7 +24,8 @@ plugins {
 
 querent {
   buildFeatures {
-    xmlResources = true
+    // TODO querent issue - https://github.com/teogor/querent/issues/16
+    xmlResources = false
   }
 }
 

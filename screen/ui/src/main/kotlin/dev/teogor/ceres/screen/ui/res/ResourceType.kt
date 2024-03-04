@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 teogor (Teodor Grigor)
+ * Copyright 2024 teogor (Teodor Grigor)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package dev.teogor.querent.api.models
+package dev.teogor.ceres.screen.ui.res
 
-import java.io.Serializable
-
-/**
- * Data class for representing package details.
- *
- * This data class holds information about a package, including its name and namespace.
- */
-data class PackageDetails(
-  val packageName: String,
-  val namespace: String,
-) : Serializable
+public enum class ResourceType {
+  Array,
+  Plurals,
+  String,
+}

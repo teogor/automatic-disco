@@ -37,7 +37,7 @@ coil = "2.5.0"
 colorMath = "3.2.0"
 dokka = "1.9.10"
 espressoCore = "3.5.1"
-firebaseBom = "32.7.2"
+firebaseBom = "32.7.3"
 firebaseCrashlyticsPlugin = "2.9.9"
 firebasePerfPlugin = "1.4.2"
 gmsPlugin = "4.4.1"
@@ -146,6 +146,7 @@ firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashly
 firebase-performance-gradle = { group = "com.google.firebase", name = "perf-plugin", version.ref = "firebasePerfPlugin" }
 firebase-performance = { group = "com.google.firebase", name = "firebase-perf" }
 google-material = { group = "com.google.android.material", name = "material", version.ref = "googleMaterial" }
+google-android-ump = { module = "com.google.android.ump:user-messaging-platform", version.ref = "google-android-ump" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
