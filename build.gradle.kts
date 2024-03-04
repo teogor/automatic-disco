@@ -34,7 +34,7 @@ plugins {
   alias(libs.plugins.hilt) apply false
   alias(libs.plugins.ksp) apply false
 
-  alias(libs.plugins.querent) apply false
+  id("dev.teogor.querent") apply false
   alias(libs.plugins.winds) apply true
 
   alias(libs.plugins.about.libraries) apply false

@@ -29,7 +29,7 @@ plugins {
   id("kotlinx-serialization")
   id("jacoco")
 
-  alias(libs.plugins.querent)
+  id("dev.teogor.querent")
 
   // Feature :: About
   alias(libs.plugins.about.libraries) apply true
