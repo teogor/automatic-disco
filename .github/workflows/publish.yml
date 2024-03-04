@@ -84,12 +84,6 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Print contents of screen/ui/ directory
-        run: ls $PWD/screen/ui/
-
-      - name: Print contents of directory recursively
-        run: ls -R pwd/screen/ui/
-
       - name: Build Project
         run: ./gradlew build
 
@@ -111,6 +105,9 @@ jobs:
 #          else
 #            echo "Directory does not exist"
 #          fi
+
+      - name: Print contents of Screen UI Module
+        run: ls $PWD/screen/ui/
 
       - name: Publish Specified Modules
         env:
