@@ -70,11 +70,22 @@ jobs:
           distribution: zulu
           java-version: 17
 
-      - name: Grant Permission to Execute Gradle
-        run: chmod +x gradlew
+      - name: Cache Gradle and wrapper
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-#      - name: Build Project
-#        run: ./gradlew --continue build
+      - uses: gradle/gradle-build-action@v2.7.1
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Build Project
+        run: ./gradlew build
 
       - name: Publish BOM
         env:
