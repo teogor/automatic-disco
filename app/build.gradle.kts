@@ -15,6 +15,7 @@
  */
 import dev.teogor.ceres.CeresBuildType
 import dev.teogor.ceres.Version
+import dev.teogor.querent.tasks.GenerateValuesTask
 import dev.teogor.xenoglot.Country
 import dev.teogor.xenoglot.Language
 import dev.teogor.xenoglot.territorialize
@@ -177,5 +178,13 @@ configurations.configureEach {
     force(libs.junit4)
     // Temporary workaround for https://issuetracker.google.com/174733673
     force("org.objenesis:objenesis:2.6")
+  }
+}
+
+afterEvaluate {
+  tasks.withType<JavaCompile> {
+    tasks.withType<GenerateValuesTask>().forEach {
+      dependsOn(it)
+    }
   }
 }
