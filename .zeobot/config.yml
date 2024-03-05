@@ -84,24 +84,16 @@ license_checker:
   allowed:
     # people/organisations who own the license
     copyright_holders:
-      - teogor (Teodor Grigor)
     # licenses that are approved
     licenses:
-      - Apache-2.0
   # files to check
   to_check:
     # with extension
     extensions:
-     - kt
-     - java
-     - xml
   # files to ignore
   to_ignore:
     # with path
     files_path:
-     - buildSrc/
-     - .idea/
-     - spotless/
 
 # Draft Release (DR)
 # automatically make a draft release

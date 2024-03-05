@@ -1,101 +1,105 @@
-# Ceres
+## Querent 🏗️
 
-🪐 Ceres is a comprehensive Android development framework designed to streamline your app development process. Powered by the latest technologies like Jetpack Compose, Hilt, Coroutines, and Flow, Ceres empowers developers to build modern and efficient Android applications.
+Querent lays the groundwork for your project's resource management, fostering consistency and efficiency across your development workflow. It automates the generation of resource files based on your project's configuration, saving you time and effort while ensuring that your resources are always up-to-date.
 
-## Overview
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Maven Central](https://img.shields.io/maven-central/v/dev.teogor.ceres/bom.svg?label=Maven%20Central)](https://central.sonatype.com/search?q=g%3Adev.teogor.ceres+a%3Abom&smo=true)
-[![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=24)
-[![Profile](https://source.teogor.dev/badges/teogor-github.svg)](https://github.com/teogor)
-[![Portfolio](https://source.teogor.dev/badges/teogor-dev.svg)](https://teogor.dev)
+### Existing Implementations
 
-## Introduction
+Querent currently provides three built-in plugins for generating resource files:
 
-In the ever-evolving world of Android development, staying up-to-date with the latest tools and technologies is essential to building cutting-edge apps. This is where Ceres comes into play.
+1. **BuildProfile:** Generates code for build profiles, which are sets of properties that define how a project is built.
 
-Ceres is more than just a library; it's a comprehensive solution that simplifies your Android development journey. It empowers you to leverage the full potential of Jetpack Compose for crafting beautiful and responsive user interfaces. With built-in support for Hilt, you can effortlessly manage your app's dependency injection, making your codebase clean and maintainable.
+2. **XmlResources:** Generates XML resource files for various Android resources, such as strings, layouts, and drawables.
 
-Say goodbye to callback hell and embrace the power of Coroutines and Flow for asynchronous programming. Ceres makes it easy to handle complex data flows and asynchronous operations, ensuring that your app is responsive and delightful to use.
+3. **LanguagesSchema:** Generates code for languages schemas, which define the supported languages for your project and the rules for generating localized resources.
 
-## Key Features
+### Creating Custom Plugins
 
-- **Jetpack Compose Integration:** Harness the power of Jetpack Compose to build modern, declarative UIs effortlessly.
+Querent's extensible architecture allows you to create your own custom plugins for generating any type of resource file you need. To create a custom plugin, you'll need to follow these steps:
 
-- **Hilt Dependency Injection:** Manage your app's dependencies with Hilt for cleaner and more maintainable code.
+1. **Create a Blueprint class:** Define a class that extends the `Blueprint` class and implements the `onCreate()` method. The `onCreate()` method is where you'll write the code for generating your custom resource files.
 
-- **Coroutines and Flow:** Simplify asynchronous programming with Coroutines and Flow, making your app more responsive.
+2. **Register your plugin:** Use the `initializePlugin()` extension method to register your plugin with Querent. This will make your plugin available for use in your project's build configuration.
 
-- **Modular and Extensible:** Ceres is designed with modularity in mind, allowing you to include only the components you need.
+### Example Usage
 
-- **Comprehensive Documentation:** Access detailed documentation and guides to kickstart your development journey with Ceres.
+Here's a step-by-step guide on how to apply the Querent plugin to your project:
 
-With Ceres, you can accelerate your Android app development, create delightful user experiences, and stay ahead in the competitive world of Android development.
+**1. Add the Querent Plugin to Your Project's Build.gradle File**
 
-## Implementation
-
-To streamline the implementation of Ceres libraries, use the following Gradle setup with the BoM (Bill of Materials) for version management.
-
-1. Add the BoM for Ceres in your **module**'s `build.gradle` or `build.gradle.kts` file:
+In your project's **build.gradle.kts** file, add the following line to the `plugins` block:
 
 ```kotlin
-dependencies {
-  implementation(platform("dev.teogor.ceres:bom:1.0.0-alpha03"))
+plugins {
+  id("dev.teogor.querent") apply false
 }
 ```
 
-2. Then, include the specific Ceres libraries you need as dependencies:
+This line tells Gradle to apply the Querent plugin to your project.
+
+**2. Apply the Querent Plugin to Your Build Configuration**
+
+In your project's **build.gradle.kts** file, apply the Querent plugin to your build configuration. For example, if you're building an Android app, you would add the following line to the `android` block:
 
 ```kotlin
-dependencies {
-  // Ceres BoM
-  implementation(platform("dev.teogor.ceres:bom:1.0.0-alpha03"))
-
-  // Include individual Ceres libraries here as needed
-  implementation("dev.teogor.ceres:backup-core")
-  implementation("dev.teogor.ceres:core-foundation")
-  implementation("dev.teogor.ceres:firebase-analytics")
-  // ... Add more libraries here
+plugins {
+  id("dev.teogor.querent")
 }
 ```
 
-This setup simplifies library version management and ensures compatibility among the Ceres libraries in your project. The BoM (Bill of Materials) achieves this by centralizing version management, significantly reducing compatibility issues, and streamlining the entire dependency management process. Customize the dependencies based on your project's requirements by including only the necessary Ceres libraries.
+**3. Configure Querent**
 
-### Ceres BoM (Bill of Materials)
+You can configure Querent by adding a `querent` block to your build configuration. For example, the following code enables all three of the built-in plugins and configures the languages schema plugin to support several languages:
 
-The BOM (Bill of Materials) is the central hub for managing library versions within the Ceres project.
-It enables you to effortlessly keep track of the latest versions of key components and dependencies.
+```kotlin
+querent {
+  buildFeatures {
+    buildProfile = true
+    xmlResources = true
+    languagesSchema = true
+  }
 
-For more implementation options and detailed information, refer to the [Ceres BoM (Bill of Materials) documentation](docs/bom/versions.md).
+  languagesSchemaOptions {
+    unqualifiedResLocale = Language.English territorialize Country.UnitedStates
+    addSupportedLanguages {
+      +(Language.Romanian territorialize Country.Romania)
+      +(Language.English territorialize Country.UnitedKingdom)
+      +(Language.Korean territorialize Country.SouthKorea)
+      +(Language.Dutch territorialize Country.Netherlands)
+      +(Language.German territorialize Country.Germany)
+      +(Language.Chinese territorialize Country.China)
+      +Language.Japanese
+      +Language.Spanish
+      +Language.Hindi
+      +Language.Arabic
+    }
+  }
+}
+```
 
-### BoM Versions (Bill of Materials)
+This configuration will generate build profiles, XML resource files, and code for the supported languages.
 
-For a list of the latest BOM (Bill of Materials) versions, including release notes and release dates, please refer to the [Ceres Version Catalog](/docs/ceres-version-catalog.md). This catalog provides comprehensive information about Ceres libraries and BOM versions in TOML format.
+### Building with Querent
 
-Explore further to access the full catalog and detailed implementation information.
+To build your project with Querent, simply apply the plugin to your project and run the `gradle build` command. Querent will automatically generate the resource files for your project.
 
-> **Note**: This library has more modules, so include only the ones that you want to use.
+### Benefits of Using Querent
 
-## Documentation
+Querent offers several benefits for developers, including:
 
-Explore the comprehensive documentation for Ceres to get started:
+* **Saves time and effort:** Querent automates the generation of resource files, saving you time and effort that you can spend on other development tasks.
 
-- [Read the Full Documentation](docs/index.md)
-- [Versions](docs/bom/versions.md)
-- [Library Versions Catalog](docs/ceres-version-catalog.md)
+* **Ensures consistency:** Querent generates resource files based on your project's configuration, ensuring that your resources are always consistent.
 
-> Explore the documentation for more details on each module:
-> - [Backup](docs/ceres-module-backup.md)
-> - [Core](docs/ceres-module-core.md)
-> - [Data](docs/ceres-module-data.md)
-> - [Firebase](docs/ceres-module-firebase.md)
-> - [Framework](docs/ceres-module-framework.md)
-> - [Monetisation](docs/ceres-module-monetisation.md)
-> - [Navigation](docs/ceres-module-navigation.md)
-> - [Screen](docs/ceres-module-screen.md)
-> - [UI](docs/ceres-module-ui.md)
+* **Reduces manual errors:** Querent eliminates the need for manual resource file creation, reducing the risk of errors.
+
+* **Extensible architecture:** Querent's extensible architecture allows you to create your own custom plugins for generating any type of resource file you need.
+
+* **Improved developer experience:** Querent makes it easier to manage and maintain your project's resources, improving the overall developer experience.
+
+Whether you're building a new project or maintaining an existing one, Querent can help you streamline your resource management process and save you time and effort.
 
 ## Find this repository useful? :heart:
-Support it by joining __[stargazers](https://github.com/teogor/ceres/stargazers)__ for this repository. :star: <br>
+Support it by joining __[stargazers](https://github.com/teogor/querent/stargazers)__ for this repository. :star: <br>
 Also, __[follow me](https://github.com/teogor)__ on GitHub for my next creations! 🤩
 
 # License
