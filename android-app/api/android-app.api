@@ -18,38 +18,6 @@ public final class com/zeoowl/live/demo/MainActivityKt {
 	public static final fun Item (Ljava/lang/String;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
 }
 
-public final class com/zeoowl/live/demo/a/resources/ResourceIdsKt {
-	public static final fun getAppNameId ()I
-}
-
-public final class com/zeoowl/live/demo/a/resources/ResourceKey : java/lang/Enum {
-	public static final field APP_NAME Lcom/zeoowl/live/demo/a/resources/ResourceKey;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public final fun getId ()I
-	public final fun getType ()Lcom/zeoowl/live/demo/a/resources/ResourceType;
-	public static fun valueOf (Ljava/lang/String;)Lcom/zeoowl/live/demo/a/resources/ResourceKey;
-	public static fun values ()[Lcom/zeoowl/live/demo/a/resources/ResourceKey;
-}
-
-public final class com/zeoowl/live/demo/a/resources/ResourceKeyKt {
-	public static final fun getValue (Lcom/zeoowl/live/demo/a/resources/ResourceKey;Ljava/lang/Object;Lkotlin/reflect/KProperty;)I
-}
-
-public final class com/zeoowl/live/demo/a/resources/ResourceType : java/lang/Enum {
-	public static final field Array Lcom/zeoowl/live/demo/a/resources/ResourceType;
-	public static final field Plurals Lcom/zeoowl/live/demo/a/resources/ResourceType;
-	public static final field String Lcom/zeoowl/live/demo/a/resources/ResourceType;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/zeoowl/live/demo/a/resources/ResourceType;
-	public static fun values ()[Lcom/zeoowl/live/demo/a/resources/ResourceType;
-}
-
-public final class com/zeoowl/live/demo/a/resources/Resources {
-	public static final field $stable I
-	public static final field INSTANCE Lcom/zeoowl/live/demo/a/resources/Resources;
-	public final fun getAppName (Landroidx/compose/runtime/Composer;I)Ljava/lang/String;
-}
-
 public final class com/zeoowl/live/demo/build/BuildProfile : dev/teogor/ceres/core/register/BuildProfiler {
 	public static final field $stable I
 	public static final field INSTANCE Lcom/zeoowl/live/demo/build/BuildProfile;
@@ -88,6 +56,38 @@ public final class com/zeoowl/live/demo/lang/SupportedDialects : dev/teogor/cere
 	public fun getSupportedLanguages ()Ljava/util/List;
 	public fun hasMultipleCountriesForLanguage (Ljava/lang/String;)Z
 	public fun isLanguageSelected (Ljava/lang/String;)Z
+}
+
+public final class com/zeoowl/live/demo/resources/ResourceIdsKt {
+	public static final fun getAppNameId ()I
+}
+
+public final class com/zeoowl/live/demo/resources/ResourceKey : java/lang/Enum {
+	public static final field APP_NAME Lcom/zeoowl/live/demo/resources/ResourceKey;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getId ()I
+	public final fun getType ()Lcom/zeoowl/live/demo/resources/ResourceType;
+	public static fun valueOf (Ljava/lang/String;)Lcom/zeoowl/live/demo/resources/ResourceKey;
+	public static fun values ()[Lcom/zeoowl/live/demo/resources/ResourceKey;
+}
+
+public final class com/zeoowl/live/demo/resources/ResourceKeyKt {
+	public static final fun getValue (Lcom/zeoowl/live/demo/resources/ResourceKey;Ljava/lang/Object;Lkotlin/reflect/KProperty;)I
+}
+
+public final class com/zeoowl/live/demo/resources/ResourceType : java/lang/Enum {
+	public static final field Array Lcom/zeoowl/live/demo/resources/ResourceType;
+	public static final field Plurals Lcom/zeoowl/live/demo/resources/ResourceType;
+	public static final field String Lcom/zeoowl/live/demo/resources/ResourceType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/zeoowl/live/demo/resources/ResourceType;
+	public static fun values ()[Lcom/zeoowl/live/demo/resources/ResourceType;
+}
+
+public final class com/zeoowl/live/demo/resources/Resources {
+	public static final field $stable I
+	public static final field INSTANCE Lcom/zeoowl/live/demo/resources/Resources;
+	public final fun getAppName (Landroidx/compose/runtime/Composer;I)Ljava/lang/String;
 }
 
 public final class com/zeoowl/live/demo/ui/theme/ColorKt {
