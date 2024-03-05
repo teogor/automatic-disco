@@ -152,9 +152,7 @@ subprojects {
             mapOf(
               "ktlint_code_style" to "ktlint_official",
               "ij_kotlin_allow_trailing_comma" to "true",
-              // These rules were introduced in ktlint 0.46.0 and should not be
-              // enabled without further discussion. They are disabled for now.
-              // See: https://github.com/pinterest/ktlint/releases/tag/0.46.0
+              "standard:comment-wrapping" to "false",
               "disabled_rules" to
                 "filename," +
                 "annotation,annotation-spacing," +
@@ -171,7 +169,8 @@ subprojects {
                 "unary-op-spacing," +
                 "no-trailing-spaces," +
                 "no-wildcard-imports," +
-                "max-line-length",
+                "max-line-length," +
+                "standard:comment-wrapping,",
             ),
           )
         licenseHeaderFile(rootProject.file("spotless/copyright.kt"))

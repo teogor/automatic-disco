@@ -43,7 +43,6 @@ class Plugin : Plugin<Project> {
   lateinit var baseDir: File
   private lateinit var kspConfigurations: KspConfigurations
 
-
   override fun apply(target: Project) {
     kspConfigurations = KspConfigurations(target)
 

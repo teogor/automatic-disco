@@ -30,7 +30,6 @@ import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.of
 import org.gradle.kotlin.dsl.register
-import org.jetbrains.kotlin.cli.common.collectSources
 
 class BuildProfile(data: FoundationData) : Blueprint(data) {
 

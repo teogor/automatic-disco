@@ -1,13 +1,22 @@
+/*
+ * Copyright 2024 teogor (Teodor Grigor)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package dev.teogor.querent
 
-import com.google.devtools.ksp.gradle.KotlinFactories
-import com.google.devtools.ksp.gradle.KspAATask
-import com.google.devtools.ksp.gradle.KspExtension
 import com.google.devtools.ksp.gradle.KspTask
-import com.google.devtools.ksp.gradle.KspTaskJS
-import com.google.devtools.ksp.gradle.KspTaskJvm
-import com.google.devtools.ksp.gradle.KspTaskMetadata
-import com.google.devtools.ksp.gradle.KspTaskNative
 import com.google.devtools.ksp.gradle.toSubpluginOptions
 import dev.teogor.querent.gradle.KspConfigurations
 import dev.teogor.querent.gradle.KspGradleSubplugin
@@ -58,9 +67,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinWithJavaCompilation
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompileTool
 import org.jetbrains.kotlin.gradle.tasks.BaseKotlinCompile
-import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.incremental.isJavaFile
 import org.jetbrains.kotlin.incremental.isKotlinFile
@@ -245,7 +252,7 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
     )
 
     val processingModel = project.findProperty(
-      "querent.experimental.processing.model"
+      "querent.experimental.processing.model",
     )?.toString() ?: "traditional"
 
     assert(kotlinCompileProvider.name.startsWith("compile"))
@@ -380,8 +387,10 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
 
     val isIncremental = project.findProperty("ksp.incremental")?.toString()?.toBoolean() ?: true
     val isIntermoduleIncremental =
-      (project.findProperty("ksp.incremental.intermodule")?.toString()?.toBoolean()
-        ?: true) && isIncremental
+      (
+        project.findProperty("ksp.incremental.intermodule")?.toString()?.toBoolean()
+          ?: true
+        ) && isIncremental
     val useKSP2 = project.findProperty("ksp.useKSP2")?.toString()?.toBoolean() ?: false
 
     // Create and configure KSP tasks.
@@ -555,8 +564,8 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
     // }
 
     val generatedSources = arrayOf(
-      project.files(kotlinOutputDir),/* .builtBy(kspTaskProvider) */
-      project.files(javaOutputDir),/* .builtBy(kspTaskProvider) */
+      project.files(kotlinOutputDir).builtBy(kspTaskProvider),
+      project.files(javaOutputDir).builtBy(kspTaskProvider),
     )
     if (kotlinCompilation is KotlinCommonCompilation) {
       // Do not add generated sources to common source sets.
@@ -576,8 +585,10 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       object : Action<AbstractKotlinCompileTool<*>> {
         override fun execute(kotlinCompile: AbstractKotlinCompileTool<*>) {
           when (kotlinCompile) {
-            is AbstractKotlinCompile<*> -> kotlinCompile.libraries.from(project.files(classOutputDir))
-            // is KotlinNativeCompile -> TODO: support binary generation?
+            is AbstractKotlinCompile<*> -> kotlinCompile.libraries.from(
+              project.files(classOutputDir),
+            )
+            is KotlinNativeCompile -> null // TODO: support binary generation?
           }
         }
       },
@@ -590,7 +601,7 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       provider.configure(
         object : Action<ProcessResources> {
           override fun execute(resourcesTask: ProcessResources) {
-            resourcesTask.from(project.files(resourceOutputDir)/* .builtBy(kspTaskProvider) */)
+            resourcesTask.from(project.files(resourceOutputDir).builtBy(kspTaskProvider))
           }
         },
       )
@@ -627,7 +638,9 @@ internal inline fun <reified T : Task> Project.locateTask(name: String): TaskPro
   }
 
 // Copied from kotlin-gradle-plugin, because they are internal.
-internal fun findJavaTaskForKotlinCompilation(compilation: KotlinCompilation<*>): TaskProvider<out JavaCompile>? =
+internal fun findJavaTaskForKotlinCompilation(
+  compilation: KotlinCompilation<*>,
+): TaskProvider<out JavaCompile>? =
   when (compilation) {
     is KotlinJvmAndroidCompilation -> compilation.compileJavaTaskProvider
     is KotlinWithJavaCompilation<*, *> -> compilation.compileJavaTaskProvider
@@ -641,11 +654,11 @@ internal fun maybeRegisterTransform(project: Project) {
   // Use the same flag with KAPT, so as to share the same transformation in case KAPT and KSP are both enabled.
   if (!project.extensions.extraProperties.has("KaptStructureTransformAdded")) {
     val transformActionClass =
-      if (GradleVersion.current() >= GradleVersion.version("5.4"))
+      if (GradleVersion.current() >= GradleVersion.version("5.4")) {
         StructureTransformAction::class.java
-      else
-
+      } else {
         StructureTransformLegacyAction::class.java
+      }
     project.dependencies.registerTransform(
       transformActionClass,
       object : Action<TransformSpec<TransformParameters.None>> {
@@ -693,61 +706,64 @@ internal fun getClassStructureFiles(
 // This is adapted from KaptTask.findClasspathChanges.
 @OptIn(ExperimentalBuildToolsApi::class)
 internal fun findClasspathChanges(
-    changes: SourcesChanges,
-    cacheDir: File,
-    allDataFiles: Set<File>,
-    libs: List<File>,
-    processorCP: List<File>,
+  changes: SourcesChanges,
+  cacheDir: File,
+  allDataFiles: Set<File>,
+  libs: List<File>,
+  processorCP: List<File>,
 ): KaptClasspathChanges {
+  cacheDir.mkdirs()
+
+  val changedFiles =
+    (changes as? SourcesChanges.Known)?.let {
+      it.modifiedFiles + it.removedFiles
+    }?.toSet() ?: allDataFiles
+
+  val loadedPrevious = ClasspathSnapshot.ClasspathSnapshotFactory.loadFrom(cacheDir)
+  val previousAndCurrentDataFiles = lazy { loadedPrevious.getAllDataFiles() + allDataFiles }
+  val allChangesRecognized = changedFiles.all {
+    val extension = it.extension
+    if (extension.isEmpty() || extension == "kt" || extension == "java" || extension == "jar" ||
+      extension == "class"
+    ) {
+      return@all true
+    }
+    // if not a directory, Java source file, jar, or class, it has to be a structure file, in order to understand changes
+    it in previousAndCurrentDataFiles.value
+  }
+  val previousSnapshot = if (allChangesRecognized) {
+    loadedPrevious
+  } else {
+    ClasspathSnapshot.ClasspathSnapshotFactory.getEmptySnapshot()
+  }
+
+  val currentSnapshot =
+    ClasspathSnapshot.ClasspathSnapshotFactory.createCurrent(
+      cacheDir,
+      libs,
+      processorCP,
+      allDataFiles,
+    )
+
+  val classpathChanges = currentSnapshot.diff(previousSnapshot, changedFiles)
+  if (classpathChanges is KaptClasspathChanges.Unknown || changes is SourcesChanges.Unknown) {
+    cacheDir.deleteRecursively()
     cacheDir.mkdirs()
+  }
+  currentSnapshot.writeToCache()
 
-    val changedFiles =
-        (changes as? SourcesChanges.Known)?.let { it.modifiedFiles + it.removedFiles }?.toSet() ?: allDataFiles
-
-    val loadedPrevious = ClasspathSnapshot.ClasspathSnapshotFactory.loadFrom(cacheDir)
-    val previousAndCurrentDataFiles = lazy { loadedPrevious.getAllDataFiles() + allDataFiles }
-    val allChangesRecognized = changedFiles.all {
-        val extension = it.extension
-        if (extension.isEmpty() || extension == "kt" || extension == "java" || extension == "jar" ||
-            extension == "class"
-        ) {
-            return@all true
-        }
-        // if not a directory, Java source file, jar, or class, it has to be a structure file, in order to understand changes
-        it in previousAndCurrentDataFiles.value
-    }
-    val previousSnapshot = if (allChangesRecognized) {
-        loadedPrevious
-    } else {
-        ClasspathSnapshot.ClasspathSnapshotFactory.getEmptySnapshot()
-    }
-
-    val currentSnapshot =
-        ClasspathSnapshot.ClasspathSnapshotFactory.createCurrent(
-            cacheDir,
-            libs,
-            processorCP,
-            allDataFiles
-        )
-
-    val classpathChanges = currentSnapshot.diff(previousSnapshot, changedFiles)
-    if (classpathChanges is KaptClasspathChanges.Unknown || changes is SourcesChanges.Unknown) {
-        cacheDir.deleteRecursively()
-        cacheDir.mkdirs()
-    }
-    currentSnapshot.writeToCache()
-
-    return classpathChanges
+  return classpathChanges
 }
 
 @OptIn(ExperimentalBuildToolsApi::class)
 internal fun SourcesChanges.hasNonSourceChange(): Boolean {
-    if (this !is SourcesChanges.Known)
-        return true
+  if (this !is SourcesChanges.Known) {
+    return true
+  }
 
-    return !(this.modifiedFiles + this.removedFiles).all {
-        it.isKotlinFile(listOf("kt")) || it.isJavaFile()
-    }
+  return !(this.modifiedFiles + this.removedFiles).all {
+    it.isKotlinFile(listOf("kt")) || it.isJavaFile()
+  }
 }
 
 // Return a closure that captures required arguments only.
@@ -772,7 +788,7 @@ internal fun createIncrementalChangesTransformer(
         cacheDir,
         classpathStructure.get().files,
         libraries.get().files.toList(),
-        apClasspath
+        apClasspath,
       )
       options += classpathChanges.toSubpluginOptions()
     } else {
