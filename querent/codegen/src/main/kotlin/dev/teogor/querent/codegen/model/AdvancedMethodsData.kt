@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package dev.teogor.drifter.codegen.commons
+package dev.teogor.querent.codegen.model
 
-import com.squareup.kotlinpoet.ClassName
-
-val UnityMessageSender = ClassName(
-  "dev.teogor.drifter.common",
-  "UnityMessageSender",
+data class AdvancedMethodsData(
+  val name: String,
+  val params: List<String>,
 )

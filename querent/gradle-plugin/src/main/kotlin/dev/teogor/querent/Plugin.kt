@@ -20,9 +20,12 @@ import com.google.devtools.ksp.gradle.KspConfigurations
 import com.google.devtools.ksp.gradle.KspGradleSubplugin
 import dev.teogor.querent.api.codegen.impl.initializePlugin
 import dev.teogor.querent.api.impl.QuerentConfiguratorExtension
+import dev.teogor.querent.codegen.CodeGenerator
+import dev.teogor.querent.codegen.KspCodeOutputStreamMaker
+import dev.teogor.querent.codegen.model.CodeGenConfig
 import dev.teogor.querent.common.AnyChanges
 import dev.teogor.querent.common.impl.CodeGeneratorImpl
-import dev.teogor.querent.processing.Dependencies
+import dev.teogor.querent.processors.KspToCodeGenDestinationsMapper
 import dev.teogor.querent.structures.BuildProfile
 import dev.teogor.querent.structures.LanguagesSchema
 import dev.teogor.querent.structures.XmlResources
@@ -44,13 +47,31 @@ class Plugin : Plugin<Project> {
   override fun apply(target: Project) {
     kspConfigurations = KspConfigurations(target)
 
-    // CodeGenerator(
-    //   codeOutputStreamMaker = KspCodeOutputStreamMaker(
-    //     codeGenerator = codeGenerator,
-    //     sourceMapper = KspToCodeGenDestinationsMapper(resolver),
-    //   ),
-    // codeGenConfig = ConfigParser(options).parse(),
-    // )
+    val baseDir = target.project.buildDir.resolve("generated/x-querent")
+    val classesDir = File(baseDir, "classes")
+    classesDir.mkdirs()
+    val javaDir = File(baseDir, "java")
+    javaDir.mkdirs()
+    val kotlinDir = File(baseDir, "kotlin")
+    kotlinDir.mkdirs()
+    val resourcesDir = File(baseDir, "resources")
+    resourcesDir.mkdirs()
+    CodeGenerator(
+      codeOutputStreamMaker = KspCodeOutputStreamMaker(
+        codeGenerator = CodeGeneratorImpl(
+          classesDir,
+          { javaDir },
+          kotlinDir,
+          resourcesDir,
+          baseDir,
+          AnyChanges(baseDir),
+          emptyList(),
+          true,
+        ),
+        sourceMapper = KspToCodeGenDestinationsMapper(),
+      ),
+      codeGenConfig = CodeGenConfig("com.zeoowl.live.demo"),
+    ).generate()
 
     target.configurations.maybeCreate(
       KspGradleSubplugin.KSP_PLUGIN_CLASSPATH_CONFIGURATION_NAME,

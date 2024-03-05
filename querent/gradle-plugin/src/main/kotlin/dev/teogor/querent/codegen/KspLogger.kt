@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package dev.teogor.drifter.codegen.model
+package dev.teogor.querent.codegen
 
-import com.squareup.kotlinpoet.TypeName
+import com.google.devtools.ksp.processing.KSPLogger
+import dev.teogor.querent.codegen.facades.Logger
 
-data class ConverterType(
-  val name: String,
-  val packageName: String,
-  val receiverType: TypeName,
-  val returnType: TypeName,
-)
+class KspLogger(
+  private val kspLogger: KSPLogger,
+) : Logger {
+
+  override fun logging(message: String) = kspLogger.logging(message)
+
+  override fun info(message: String) = kspLogger.info(message)
+
+  override fun warn(message: String) = kspLogger.warn(message)
+
+  override fun error(message: String) = kspLogger.error(message)
+
+  override fun exception(e: Throwable) = kspLogger.exception(e)
+}

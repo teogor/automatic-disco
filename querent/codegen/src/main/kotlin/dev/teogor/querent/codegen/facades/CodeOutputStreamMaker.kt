@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.teogor.drifter.codegen.facades
+package dev.teogor.querent.codegen.facades
 
 import com.squareup.kotlinpoet.FileSpec
 import java.io.OutputStream

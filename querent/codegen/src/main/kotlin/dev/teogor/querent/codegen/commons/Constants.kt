@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package dev.teogor.drifter.codegen.model
+package dev.teogor.querent.codegen.commons
 
-data class CodeGenConfig(
-  val addDocumentation: Boolean,
-  val generateOperations: Boolean,
-  val generatedPackageName: String?,
+import com.squareup.kotlinpoet.ClassName
+
+val UnityMessageSender = ClassName(
+  "dev.teogor.drifter.common",
+  "UnityMessageSender",
 )

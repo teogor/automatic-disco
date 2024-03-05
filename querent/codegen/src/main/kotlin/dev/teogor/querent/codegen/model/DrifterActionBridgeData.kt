@@ -14,9 +14,30 @@
  * limitations under the License.
  */
 
-package dev.teogor.drifter.codegen.model
+package dev.teogor.querent.codegen.model
 
-data class AdvancedMethodsData(
+data class DrifterActionBridgeData(
   val name: String,
-  val params: List<String>,
-)
+  val receiverGameObject: String,
+  val externalMethods: List<AdvancedMethodsData>?,
+  val simpleName: String,
+  val packageName: String,
+  val params: List<BridgeKeyData>,
+) {
+  val isError: Boolean
+    get() = params.isEmpty()
+
+  val baseName: String
+    get() = name.ifEmpty { simpleName }
+
+  companion object {
+    val INVALID = DrifterActionBridgeData(
+      name = "",
+      receiverGameObject = "",
+      simpleName = "",
+      packageName = "",
+      params = emptyList(),
+      externalMethods = null,
+    )
+  }
+}

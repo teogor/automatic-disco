@@ -14,24 +14,8 @@
  * limitations under the License.
  */
 
-package dev.teogor.drifter.codegen.facades
+package dev.teogor.querent.codegen.model
 
-interface Logger {
-
-  fun logging(message: String)
-
-  fun info(message: String)
-
-  fun warn(message: String)
-
-  fun error(message: String)
-
-  fun exception(e: Throwable)
-
-  companion object {
-    lateinit var instance: Logger
-  }
-}
-
-val logger: Logger
-  get() = Logger.instance
+data class CodeGenConfig(
+  val generatedPackageName: String,
+)

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package dev.teogor.drifter.codegen.model
+package dev.teogor.querent.codegen.model
 
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.UNIT
-import dev.teogor.drifter.codegen.commons.toSnakeCase
-import dev.teogor.drifter.codegen.commons.toTitleCase
+import dev.teogor.querent.codegen.commons.toSnakeCase
+import dev.teogor.querent.codegen.commons.toTitleCase
 
 data class BridgeKeyData(
   val name: String,

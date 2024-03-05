@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
-plugins {
-  id("java-library")
-  alias(libs.plugins.jetbrains.kotlin.jvm)
-  alias(libs.plugins.teogor.winds)
-}
+package dev.teogor.querent.commons
 
-dependencies {
-  implementation(libs.symbol.processing.api)
-  api(libs.kotlin.poet)
-  api(libs.kotlin.poet.ksp)
-}
+import com.google.devtools.ksp.symbol.KSFile
 
-winds {
-  mavenPublish {
-    displayName = "Codegen"
-    name = "codegen"
-  }
+fun interface KSFileSourceMapper {
+
+  fun mapToKSFile(sourceId: String): KSFile?
 }

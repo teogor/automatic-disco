@@ -30,6 +30,7 @@ plugins {
 }
 
 dependencies {
+  api(project(":codegen"))
   api(project(":gradle-plugin-api"))
 
   compileOnly(libs.kotlin.gradle.plugin)

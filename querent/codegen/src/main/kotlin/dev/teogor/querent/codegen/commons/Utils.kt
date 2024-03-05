@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package dev.teogor.drifter.codegen.commons
+package dev.teogor.querent.codegen.commons
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
-import dev.teogor.drifter.codegen.facades.CodeOutputStreamMaker
-import dev.teogor.drifter.codegen.facades.writeTo
+import dev.teogor.querent.codegen.facades.CodeOutputStreamMaker
+import dev.teogor.querent.codegen.facades.writeTo
 import java.util.Locale
 
 private val keywords: Set<String> = setOf(

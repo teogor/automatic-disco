@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.teogor.querent.processing
+package dev.teogor.querent.codegen.processing
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile

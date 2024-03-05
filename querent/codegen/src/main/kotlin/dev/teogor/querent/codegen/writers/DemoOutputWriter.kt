@@ -14,53 +14,36 @@
  * limitations under the License.
  */
 
-package dev.teogor.drifter.codegen.writers
+package dev.teogor.querent.codegen.writers
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
-import dev.teogor.drifter.codegen.commons.fileBuilder
-import dev.teogor.drifter.codegen.commons.writeWith
-import dev.teogor.drifter.codegen.facades.CodeOutputStreamMaker
-import dev.teogor.drifter.codegen.model.CodeGenConfig
-import dev.teogor.drifter.codegen.model.DrifterActionBridgeData
-import dev.teogor.drifter.codegen.servicelocator.OutputWriter
+import dev.teogor.querent.codegen.commons.fileBuilder
+import dev.teogor.querent.codegen.commons.writeWith
+import dev.teogor.querent.codegen.facades.CodeOutputStreamMaker
+import dev.teogor.querent.codegen.model.CodeGenConfig
+import dev.teogor.querent.codegen.servicelocator.OutputWriter
 
-class KeyConstantsOutputWriter(
+class DemoOutputWriter(
   private val codeOutputStreamMaker: CodeOutputStreamMaker,
   codeGenConfig: CodeGenConfig,
 ) : OutputWriter(codeGenConfig) {
 
-  fun write(actionBridge: DrifterActionBridgeData): TypeName {
-    val name = "${actionBridge.baseName}KeyConstants"
+  fun write() {
     fileBuilder(
-      packageName = actionBridge.getPackageName(),
-      fileName = name,
+      packageName = "${getPackageName()}.test",
+      fileName = "Demo",
     ) {
       addType(
         TypeSpec.objectBuilder(name)
           .addKdoc(
             "Used to change UnityPlayerPrefs. Recommended to use together with [UnityPlayerPrefs]",
           )
-          .apply {
-            actionBridge.params.forEach {
-              addProperty(
-                PropertySpec.builder(it.storageKeyName, String::class)
-                  .addModifiers(KModifier.PUBLIC)
-                  .initializer("%S", it.storageKeyValue)
-                  .build(),
-              )
-            }
-          }
           .build(),
       )
     }.writeWith(codeOutputStreamMaker)
-
-    return ClassName(
-      packageName = actionBridge.getPackageName(),
-      name,
-    )
   }
 }

@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-plugins {
-  id("java-library")
-  alias(libs.plugins.jetbrains.kotlin.jvm)
-  alias(libs.plugins.teogor.winds)
-}
+package dev.teogor.querent.codegen.facades
 
-dependencies {
-  implementation(libs.symbol.processing.api)
-  api(libs.kotlin.poet)
-  api(libs.kotlin.poet.ksp)
-}
+interface Logger {
 
-winds {
-  mavenPublish {
-    displayName = "Codegen"
-    name = "codegen"
+  fun logging(message: String)
+
+  fun info(message: String)
+
+  fun warn(message: String)
+
+  fun error(message: String)
+
+  fun exception(e: Throwable)
+
+  companion object {
+    lateinit var instance: Logger
   }
 }
+
+val logger: Logger
+  get() = Logger.instance

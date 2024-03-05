@@ -20,9 +20,9 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import dev.teogor.querent.codegen.processing.CodeGenerator
+import dev.teogor.querent.codegen.processing.Dependencies
 import dev.teogor.querent.common.NoSourceFile
-import dev.teogor.querent.processing.CodeGenerator
-import dev.teogor.querent.processing.Dependencies
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -55,9 +55,11 @@ class CodeGeneratorImpl(
 
   fun pathOf(packageName: String, fileName: String, extensionName: String): String {
     val packageDirs = if (packageName != "") {
-      "${packageName.split(
-        ".",
-      ).joinToString(separator)}$separator"
+      "${
+        packageName.split(
+          ".",
+        ).joinToString(separator)
+      }$separator"
     } else {
       ""
     }
@@ -78,12 +80,21 @@ class CodeGeneratorImpl(
     )
   }
 
-  override fun createNewFileByPath(dependencies: Dependencies, path: String, extensionName: String): OutputStream {
+  override fun createNewFileByPath(
+    dependencies: Dependencies,
+    path: String,
+    extensionName: String,
+  ): OutputStream {
     val extension = if (extensionName != "") ".$extensionName" else ""
     return createNewFile(dependencies, path + extension, extensionToDirectory(extensionName))
   }
 
-  override fun associate(sources: List<KSFile>, packageName: String, fileName: String, extensionName: String) {
+  override fun associate(
+    sources: List<KSFile>,
+    packageName: String,
+    fileName: String,
+    extensionName: String,
+  ) {
     associate(
       sources,
       pathOf(packageName, fileName, extensionName),

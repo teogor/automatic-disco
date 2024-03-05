@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-plugins {
-  id("java-library")
-  alias(libs.plugins.jetbrains.kotlin.jvm)
-  alias(libs.plugins.teogor.winds)
-}
+@file:Suppress("ObjectPropertyName")
 
-dependencies {
-  implementation(libs.symbol.processing.api)
-  api(libs.kotlin.poet)
-  api(libs.kotlin.poet.ksp)
-}
+package dev.teogor.querent.codegen
 
-winds {
-  mavenPublish {
-    displayName = "Codegen"
-    name = "codegen"
+import dev.teogor.querent.codegen.facades.CodeOutputStreamMaker
+import dev.teogor.querent.codegen.model.CodeGenConfig
+import dev.teogor.querent.codegen.servicelocator.ServiceLocatorAccessor
+import dev.teogor.querent.codegen.servicelocator.demoOutputWriter
+
+class CodeGenerator(
+  override val codeOutputStreamMaker: CodeOutputStreamMaker,
+  override val codeGenConfig: CodeGenConfig,
+) : ServiceLocatorAccessor {
+
+  fun generate() {
+    demoOutputWriter.write()
   }
 }
