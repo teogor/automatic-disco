@@ -99,7 +99,10 @@ android {
   }
 
 // Define the output directory for generated files
-  val generatedSrcDir = "$buildDir/generated/beta/querent/kotlin"
+  val generatedSrcDir = listOf(
+    "$buildDir/generated/beta/querent/kotlin",
+    "$buildDir/generated/querent/xmlResources/debug/kotlin",
+  )
 
   // Configure source sets
   sourceSets {

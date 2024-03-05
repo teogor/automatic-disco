@@ -138,7 +138,6 @@ val ktlintVersion = "0.50.0"
 
 val excludedProjects = listOf(
   project.name,
-  "android-app",
 )
 
 subprojects {
