@@ -16,7 +16,6 @@ plugins {
   alias(libs.plugins.jetbrains.kotlin.android) apply false
   alias(libs.plugins.android.application) apply false
   alias(libs.plugins.jetbrains.dokka) apply true
-  alias(libs.plugins.jetbrains.api.validator) apply true
 }
 
 afterEvaluate {

@@ -23,11 +23,13 @@ buildscript {
 plugins {
   alias(libs.plugins.jetbrains.kotlin.jvm) apply true
   alias(libs.plugins.jetbrains.kotlin.serialization) apply false
+  alias(libs.plugins.jetbrains.kotlin.android) apply false
   alias(libs.plugins.jetbrains.dokka) apply true
   alias(libs.plugins.jetbrains.api.validator) apply true
   alias(libs.plugins.teogor.winds) apply true
   alias(libs.plugins.spotless) apply true
   alias(libs.plugins.vanniktech.maven) apply true
+  alias(libs.plugins.android.application) apply false
 }
 
 subprojectChildrens {

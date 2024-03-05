@@ -22,4 +22,4 @@ include("gradle-plugin")
 include("gradle-plugin-api")
 
 // Pre-Built
-includeBuild("examples")
+include("examples")

@@ -61,3 +61,4 @@ jobs:
           git config --global user.name "Your Name"
           git add .
           git commit -m "Copy API output to new branch"
+          git push origin api-output-changes
