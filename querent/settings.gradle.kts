@@ -1,5 +1,4 @@
 pluginManagement {
-  includeBuild("querent/")
   repositories {
     google {
       content {
@@ -20,11 +19,16 @@ dependencyResolutionManagement {
     google()
     mavenCentral()
   }
+
+  versionCatalogs {
+    create("libs") {
+      from(files("${rootDir.parentFile}/gradle/libs.versions.toml"))
+    }
+  }
 }
 
-rootProject.name = "Querent"
-
-include("android-app")
+rootProject.name = "querent-plugin"
 
 // Pre-Built
-// include("examples")
+include("gradle-plugin")
+include("gradle-plugin-api")
