@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.zeoowl.live.demo.build.AppNameId
 import com.zeoowl.live.demo.build.BuildProfile
 import com.zeoowl.live.demo.build.Resources
 import com.zeoowl.live.demo.lang.SupportedDialects
@@ -41,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
     SupportedDialects().getSupportedDialects()
 
+    AppNameId
     Resources
     Resources
     Resources
