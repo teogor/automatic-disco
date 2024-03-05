@@ -404,11 +404,15 @@ abstract class Blueprint(
 
     buildTypes.forEach {
       val variant = it.name
-      sourceSets[variant].apply {
+      val sourceSet = sourceSets[variant].apply {
         kotlin.srcDirs(kotlin(variant))
         java.srcDirs(java(variant))
         res.srcDirs(res(variant))
         resources.srcDirs(resources(variant))
+      }
+      project.configurations.forEach { compileOnlyConfig ->
+        sourceSet.cl
+        sourceSet.compileClasspath.configurationDependencies.add(project.dependencies.create(compileOnlyConfig))
       }
     }
 
