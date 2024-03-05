@@ -105,14 +105,9 @@ android {
   sourceSets {
     names.forEach {
       named(it) {
-        println("sourceSet -> $it")
         kotlin.srcDirs(generatedSrcDir)
       }
     }
-    // main {
-    //   // Add the generated source directory to the main source set
-    //   kotlin.srcDir(generatedSrcDir)
-    // }
   }
 }
 
