@@ -410,10 +410,10 @@ abstract class Blueprint(
         res.srcDirs(res(variant))
         resources.srcDirs(resources(variant))
       }
-      project.configurations.forEach { compileOnlyConfig ->
-        sourceSet.cl
-        sourceSet.compileClasspath.configurationDependencies.add(project.dependencies.create(compileOnlyConfig))
-      }
+      // project.configurations.forEach { compileOnlyConfig ->
+      //   sourceSet.cl
+      //   sourceSet.compileClasspath.configurationDependencies.add(project.dependencies.create(compileOnlyConfig))
+      // }
     }
 
     finalizeDsl()
