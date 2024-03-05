@@ -50,7 +50,7 @@ class XmlResources(data: FoundationData) : Blueprint(data) {
   private val buildFeatures by lazy { buildOptions.buildFeatures }
 
   override val packageNameSuffix: String
-    get() = "res"
+    get() = "a.res"
 
   override fun isEnabled() = buildFeatures.xmlResources
 
