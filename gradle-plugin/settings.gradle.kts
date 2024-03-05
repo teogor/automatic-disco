@@ -13,20 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-pluginManagement {
-  includeBuild("..\\")
-  repositories {
-    google {
-      content {
-        includeGroupByRegex("com\\.android.*")
-        includeGroupByRegex("com\\.google.*")
-        includeGroupByRegex("androidx.*")
-      }
-    }
-    mavenCentral()
-    gradlePluginPortal()
-  }
-}
 
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
@@ -43,5 +29,4 @@ dependencyResolutionManagement {
   }
 }
 
-include("demo")
-include("android-app")
+include("../gradle-plugin-api")
