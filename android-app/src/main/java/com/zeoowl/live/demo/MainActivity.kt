@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.zeoowl.live.demo.build.BuildProfile
+import com.zeoowl.live.demo.res.Resources
 import com.zeoowl.live.demo.test.Greeter
 import com.zeoowl.live.demo.ui.theme.DemoTheme
 
@@ -60,6 +61,8 @@ class MainActivity : ComponentActivity() {
             )
           }
         }
+
+        Resources.AppName
       }
     }
   }
