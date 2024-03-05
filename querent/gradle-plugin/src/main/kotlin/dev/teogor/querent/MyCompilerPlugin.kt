@@ -237,7 +237,6 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
     val resourceOutputDir = getKspResourceOutputDir(project, sourceSetName, target)
     val kspOutputDir = getKspOutputDir(project, sourceSetName, target)
 
-    println("target=$target")
     println("kotlinCompilationTarget=${kotlinCompilation.target}")
 
     findJavaTaskForKotlinCompilation(kotlinCompilation)?.configure(

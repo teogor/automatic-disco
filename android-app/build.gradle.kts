@@ -82,7 +82,7 @@ android {
 
     freeCompilerArgs += listOf(
       "-P",
-      "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=$kotlinVersion"
+      "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=$kotlinVersion",
     )
   }
   buildFeatures {
@@ -96,6 +96,23 @@ android {
     resources {
       excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
+  }
+
+// Define the output directory for generated files
+  val generatedSrcDir = "$buildDir/generated/beta/querent/kotlin"
+
+  // Configure source sets
+  sourceSets {
+    names.forEach {
+      named(it) {
+        println("sourceSet -> $it")
+        kotlin.srcDir(generatedSrcDir)
+      }
+    }
+    // main {
+    //   // Add the generated source directory to the main source set
+    //   kotlin.srcDir(generatedSrcDir)
+    // }
   }
 }
 

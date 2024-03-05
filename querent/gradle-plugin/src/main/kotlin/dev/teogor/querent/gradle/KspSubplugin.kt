@@ -238,7 +238,6 @@ class KspGradleSubplugin : KotlinCompilerPluginSupportPlugin {
   override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
     val project = kotlinCompilation.target.project
     val target = kotlinCompilation.target.name
-    println("target=$target")
     println("kotlinCompilationTarget=${kotlinCompilation.target}")
     val kotlinCompileProvider: TaskProvider<AbstractKotlinCompileTool<*>> =
       project.locateTask(kotlinCompilation.compileKotlinTaskName)

@@ -47,7 +47,7 @@ class Plugin : Plugin<Project> {
   override fun apply(target: Project) {
     kspConfigurations = KspConfigurations(target)
 
-    val baseDir = target.project.buildDir.resolve("generated/x-querent")
+    val baseDir = target.project.buildDir.resolve("generated/beta/querent")
     val classesDir = File(baseDir, "classes")
     classesDir.mkdirs()
     val javaDir = File(baseDir, "java")
@@ -72,10 +72,6 @@ class Plugin : Plugin<Project> {
       ),
       codeGenConfig = CodeGenConfig("com.zeoowl.live.demo"),
     ).generate()
-
-    target.configurations.maybeCreate(
-      KspGradleSubplugin.KSP_PLUGIN_CLASSPATH_CONFIGURATION_NAME,
-    ).markResolvable()
 
     with(target) {
       extensions.create<QuerentConfiguratorExtension>(

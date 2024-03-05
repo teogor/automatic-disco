@@ -16,11 +16,9 @@
 
 package dev.teogor.querent.codegen.writers
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.TypeSpec.Companion.classBuilder
 import dev.teogor.querent.codegen.commons.fileBuilder
 import dev.teogor.querent.codegen.commons.writeWith
 import dev.teogor.querent.codegen.facades.CodeOutputStreamMaker
@@ -35,12 +33,24 @@ class DemoOutputWriter(
   fun write() {
     fileBuilder(
       packageName = "${getPackageName()}.test",
-      fileName = "Demo",
+      fileName = "Greeter",
     ) {
       addType(
-        TypeSpec.objectBuilder(name)
-          .addKdoc(
-            "Used to change UnityPlayerPrefs. Recommended to use together with [UnityPlayerPrefs]",
+        classBuilder("Greeter")
+          .primaryConstructor(
+            FunSpec.constructorBuilder()
+              .addParameter("name", String::class)
+              .build(),
+          )
+          .addProperty(
+            PropertySpec.builder("name", String::class)
+              .initializer("name")
+              .build(),
+          )
+          .addFunction(
+            FunSpec.builder("greet")
+              .addStatement("println(%P)", "Hello, \$name")
+              .build(),
           )
           .build(),
       )
