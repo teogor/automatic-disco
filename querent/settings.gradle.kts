@@ -32,3 +32,4 @@ rootProject.name = "querent-plugin"
 // Pre-Built
 include("gradle-plugin")
 include("gradle-plugin-api")
+include("codegen")

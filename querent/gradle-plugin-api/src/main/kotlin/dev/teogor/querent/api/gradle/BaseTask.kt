@@ -19,6 +19,8 @@ package dev.teogor.querent.api.gradle
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import dev.teogor.querent.api.models.PackageDetails
+import dev.teogor.querent.processing.CodeGenerator
+import dev.teogor.querent.processing.Dependencies
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -26,6 +28,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
+import java.io.File
 
 /**
  * Abstract base class for code generation tasks.
@@ -88,6 +91,12 @@ import org.gradle.api.tasks.OutputDirectory
  * The contents of the files will be defined by the `fileSpec()` blocks.
  */
 abstract class BaseTask : DefaultTask() {
+
+  private lateinit var codeGenerator: CodeGenerator
+
+  public fun setCodeGenerator(value: CodeGenerator) {
+    codeGenerator = value
+  }
 
   /**
    * Gets or sets the package name for the generated code.
@@ -163,6 +172,9 @@ abstract class BaseTask : DefaultTask() {
    * Generates the code for the file spec.
    */
   fun FileSpec.generate() {
+    if (::codeGenerator.isInitialized) {
+
+    }
     writeTo(outputDir.get().asFile)
   }
 

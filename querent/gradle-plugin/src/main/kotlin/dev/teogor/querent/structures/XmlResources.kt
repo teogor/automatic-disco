@@ -21,6 +21,8 @@ import dev.teogor.querent.api.codegen.Blueprint
 import dev.teogor.querent.api.codegen.FoundationData
 import dev.teogor.querent.api.impl.QuerentConfiguratorExtension
 import dev.teogor.querent.api.models.PackageDetails
+import dev.teogor.querent.common.AnyChanges
+import dev.teogor.querent.common.impl.CodeGeneratorImpl
 import dev.teogor.querent.tasks.GenerateValuesTask
 import dev.teogor.querent.tasks.SoakConfiguredValuesTask
 import dev.teogor.querent.utils.QuantityStrings
@@ -36,6 +38,7 @@ import dev.teogor.querent.utils.variant
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.register
+import java.io.File
 
 /**
  * https://developer.android.com/guide/topics/resources/string-resource
@@ -85,6 +88,15 @@ class XmlResources(data: FoundationData) : Blueprint(data) {
       languageTagListOutput.set(intermediates.file("${variant.name}/soaked_values_list.txt"))
     }
 
+    val baseDir = project.buildDir.resolve("generated/x-querent")
+    val classesDir = File(baseDir, "classes")
+    classesDir.mkdirs()
+    val javaDir = File(baseDir, "java")
+    javaDir.mkdirs()
+    val kotlinDir = File(baseDir, "kotlin")
+    kotlinDir.mkdirs()
+    val resourcesDir = File(baseDir, "resources")
+    resourcesDir.mkdirs()
     val generateSupportedLocalesTaskProvider = project.tasks.register<GenerateValuesTask>(
       "generateComposeResourcesForLocale${variant.name.capitalized()}",
     ) {
@@ -93,6 +105,18 @@ class XmlResources(data: FoundationData) : Blueprint(data) {
       moduleName.set(project.name)
       packageName.set(this@XmlResources.packageName)
       this.packageDetails.set(packageDetails)
+      setCodeGenerator(
+        CodeGeneratorImpl(
+          classesDir,
+          { javaDir },
+          kotlinDir,
+          resourcesDir,
+          baseDir,
+          AnyChanges(baseDir),
+          emptyList(),
+          true,
+        ),
+      )
     }
 
     project.afterEvaluate {

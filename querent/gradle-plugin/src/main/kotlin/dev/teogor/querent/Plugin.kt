@@ -22,6 +22,7 @@ import dev.teogor.querent.api.codegen.impl.initializePlugin
 import dev.teogor.querent.api.impl.QuerentConfiguratorExtension
 import dev.teogor.querent.common.AnyChanges
 import dev.teogor.querent.common.impl.CodeGeneratorImpl
+import dev.teogor.querent.processing.Dependencies
 import dev.teogor.querent.structures.BuildProfile
 import dev.teogor.querent.structures.LanguagesSchema
 import dev.teogor.querent.structures.XmlResources
@@ -38,13 +39,18 @@ internal fun Configuration.markResolvable(): Configuration = apply {
 }
 
 class Plugin : Plugin<Project> {
-
-  lateinit var codeGenerator: CodeGeneratorImpl
-  lateinit var baseDir: File
   private lateinit var kspConfigurations: KspConfigurations
 
   override fun apply(target: Project) {
     kspConfigurations = KspConfigurations(target)
+
+    // CodeGenerator(
+    //   codeOutputStreamMaker = KspCodeOutputStreamMaker(
+    //     codeGenerator = codeGenerator,
+    //     sourceMapper = KspToCodeGenDestinationsMapper(resolver),
+    //   ),
+    // codeGenConfig = ConfigParser(options).parse(),
+    // )
 
     target.configurations.maybeCreate(
       KspGradleSubplugin.KSP_PLUGIN_CLASSPATH_CONFIGURATION_NAME,
@@ -54,30 +60,6 @@ class Plugin : Plugin<Project> {
       extensions.create<QuerentConfiguratorExtension>(
         name = "querent",
       )
-
-      baseDir = target.buildDir.resolve("generated/x-querent")
-      val classesDir = File(baseDir, "classes")
-      classesDir.mkdirs()
-      val javaDir = File(baseDir, "java")
-      javaDir.mkdirs()
-      val kotlinDir = File(baseDir, "kotlin")
-      kotlinDir.mkdirs()
-      val resourcesDir = File(baseDir, "resources")
-      resourcesDir.mkdirs()
-      codeGenerator = CodeGeneratorImpl(
-        classesDir,
-        { javaDir },
-        kotlinDir,
-        resourcesDir,
-        baseDir,
-        AnyChanges(baseDir),
-        emptyList(),
-        true,
-      )
-
-      println("baseDir = $baseDir")
-
-      println("kotlinDir = $kotlinDir")
 
       initializePlugin<BuildProfile>()
       initializePlugin<XmlResources>()
