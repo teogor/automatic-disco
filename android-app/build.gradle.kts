@@ -106,7 +106,7 @@ android {
     names.forEach {
       named(it) {
         println("sourceSet -> $it")
-        kotlin.srcDir(generatedSrcDir)
+        kotlin.srcDirs(generatedSrcDir)
       }
     }
     // main {

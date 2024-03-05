@@ -29,11 +29,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.zeoowl.live.demo.build.BuildProfile
+import com.zeoowl.live.demo.test.Greeter
 import com.zeoowl.live.demo.ui.theme.DemoTheme
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
+    Greeter("Querent").greet()
 
     enableEdgeToEdge()
     setContent {
