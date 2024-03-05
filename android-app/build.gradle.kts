@@ -97,21 +97,6 @@ android {
       excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
   }
-
-// Define the output directory for generated files
-  val generatedSrcDir = listOf(
-    "$buildDir/generated/beta/querent/kotlin",
-    "$buildDir/generated/querent/xmlResources/debug/kotlin",
-  )
-
-  // Configure source sets
-  sourceSets {
-    names.forEach {
-      named(it) {
-        kotlin.srcDirs(generatedSrcDir)
-      }
-    }
-  }
 }
 
 dependencies {
