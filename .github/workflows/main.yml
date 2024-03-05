@@ -38,3 +38,24 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+
+  copy-api-output:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: List API output directory
+        run: ls examples/android-app/api
+
+      - name: Create and checkout new branch
+        run: git checkout -b api-output-changes
+
+      - name: Copy API output to new branch
+        run: |
+          mkdir -p api-output
+          cp -r examples/android-app/api/* api-output/
+          git add .
+          git commit -m "Copy API output to new branch"
