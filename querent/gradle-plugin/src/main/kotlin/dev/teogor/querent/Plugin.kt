@@ -45,33 +45,33 @@ class Plugin : Plugin<Project> {
   private lateinit var kspConfigurations: KspConfigurations
 
   override fun apply(target: Project) {
-    kspConfigurations = KspConfigurations(target)
+    // kspConfigurations = KspConfigurations(target)
 
-    val baseDir = target.project.buildDir.resolve("generated/beta/querent")
-    val classesDir = File(baseDir, "classes")
-    classesDir.mkdirs()
-    val javaDir = File(baseDir, "java")
-    javaDir.mkdirs()
-    val kotlinDir = File(baseDir, "kotlin")
-    kotlinDir.mkdirs()
-    val resourcesDir = File(baseDir, "resources")
-    resourcesDir.mkdirs()
-    CodeGenerator(
-      codeOutputStreamMaker = KspCodeOutputStreamMaker(
-        codeGenerator = CodeGeneratorImpl(
-          classesDir,
-          { javaDir },
-          kotlinDir,
-          resourcesDir,
-          baseDir,
-          AnyChanges(baseDir),
-          emptyList(),
-          true,
-        ),
-        sourceMapper = KspToCodeGenDestinationsMapper(),
-      ),
-      codeGenConfig = CodeGenConfig("com.zeoowl.live.demo"),
-    ).generate()
+    // val baseDir = target.project.buildDir.resolve("generated/beta/querent")
+    // val classesDir = File(baseDir, "classes")
+    // classesDir.mkdirs()
+    // val javaDir = File(baseDir, "java")
+    // javaDir.mkdirs()
+    // val kotlinDir = File(baseDir, "kotlin")
+    // kotlinDir.mkdirs()
+    // val resourcesDir = File(baseDir, "resources")
+    // resourcesDir.mkdirs()
+    // CodeGenerator(
+    //   codeOutputStreamMaker = KspCodeOutputStreamMaker(
+    //     codeGenerator = CodeGeneratorImpl(
+    //       classesDir,
+    //       { javaDir },
+    //       kotlinDir,
+    //       resourcesDir,
+    //       baseDir,
+    //       AnyChanges(baseDir),
+    //       emptyList(),
+    //       true,
+    //     ),
+    //     sourceMapper = KspToCodeGenDestinationsMapper(),
+    //   ),
+    //   codeGenConfig = CodeGenConfig("com.zeoowl.live.demo"),
+    // ).generate()
 
     with(target) {
       extensions.create<QuerentConfiguratorExtension>(
