@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.zeoowl.live.demo.build.BuildProfile
+import com.zeoowl.live.demo.build.Resources
 import com.zeoowl.live.demo.lang.SupportedDialects
 import com.zeoowl.live.demo.ui.theme.DemoTheme
 
@@ -39,6 +40,11 @@ class MainActivity : ComponentActivity() {
     // Greeter("Querent").greet()
 
     SupportedDialects().getSupportedDialects()
+
+    Resources
+    Resources
+    Resources
+    Resources
 
     enableEdgeToEdge()
     setContent {

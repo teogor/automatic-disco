@@ -41,6 +41,38 @@ public final class com/zeoowl/live/demo/build/BuildVariant : java/lang/Enum {
 	public static fun values ()[Lcom/zeoowl/live/demo/build/BuildVariant;
 }
 
+public final class com/zeoowl/live/demo/build/ResourceIdsKt {
+	public static final fun getAppNameId ()I
+}
+
+public final class com/zeoowl/live/demo/build/ResourceKey : java/lang/Enum {
+	public static final field APP_NAME Lcom/zeoowl/live/demo/build/ResourceKey;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getId ()I
+	public final fun getType ()Lcom/zeoowl/live/demo/build/ResourceType;
+	public static fun valueOf (Ljava/lang/String;)Lcom/zeoowl/live/demo/build/ResourceKey;
+	public static fun values ()[Lcom/zeoowl/live/demo/build/ResourceKey;
+}
+
+public final class com/zeoowl/live/demo/build/ResourceKeyKt {
+	public static final fun getValue (Lcom/zeoowl/live/demo/build/ResourceKey;Ljava/lang/Object;Lkotlin/reflect/KProperty;)I
+}
+
+public final class com/zeoowl/live/demo/build/ResourceType : java/lang/Enum {
+	public static final field Array Lcom/zeoowl/live/demo/build/ResourceType;
+	public static final field Plurals Lcom/zeoowl/live/demo/build/ResourceType;
+	public static final field String Lcom/zeoowl/live/demo/build/ResourceType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/zeoowl/live/demo/build/ResourceType;
+	public static fun values ()[Lcom/zeoowl/live/demo/build/ResourceType;
+}
+
+public final class com/zeoowl/live/demo/build/Resources {
+	public static final field $stable I
+	public static final field INSTANCE Lcom/zeoowl/live/demo/build/Resources;
+	public final fun getAppName (Landroidx/compose/runtime/Composer;I)Ljava/lang/String;
+}
+
 public final class com/zeoowl/live/demo/lang/SupportedDialects : dev/teogor/ceres/core/register/SupportedDialects {
 	public static final field $stable I
 	public fun <init> ()V
