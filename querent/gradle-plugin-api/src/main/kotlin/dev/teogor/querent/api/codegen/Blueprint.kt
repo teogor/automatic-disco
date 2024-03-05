@@ -413,17 +413,6 @@ abstract class Blueprint(
       }
       // Mark configuration as resolvable
       project.configurations.getByName(sourceSet.implementationConfigurationName).markResolvable()
-      // project.configurations.forEach { compileOnlyConfig ->
-      //   sourceSet.cl
-      //   sourceSet.compileClasspath.configurationDependencies.add(project.dependencies.create(compileOnlyConfig))
-      // }
-      // project.configurations.forEach { configuration ->
-      //   // Check if the configuration name matches the configurations you want to modify
-      //   if (configuration.name.startsWith("implementation") || configuration.name.startsWith("compileOnly")) {
-      //     // Include the generated sources directories in the configuration
-      //     configuration.extendsFrom(project.configurations.getByName("compileOnly"))
-      //   }
-      // }
     }
 
     finalizeDsl()

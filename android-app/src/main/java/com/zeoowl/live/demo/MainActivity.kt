@@ -29,7 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.zeoowl.live.demo.build.BuildProfile
-import com.zeoowl.live.demo.a.resources.Resources
+import com.zeoowl.live.demo.lang.SupportedDialects
 import com.zeoowl.live.demo.ui.theme.DemoTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,12 +38,15 @@ class MainActivity : ComponentActivity() {
 
     // Greeter("Querent").greet()
 
+    SupportedDialects().getSupportedDialects()
+
     enableEdgeToEdge()
     setContent {
       DemoTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+              .padding(innerPadding)
               .padding(horizontal = 10.dp),
           ) {
             Item(
@@ -61,7 +64,7 @@ class MainActivity : ComponentActivity() {
           }
         }
 
-        Resources.AppName
+        // Resources.AppName
       }
     }
   }
