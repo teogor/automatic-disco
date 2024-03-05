@@ -26,6 +26,7 @@ import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import dev.teogor.querent.api.utils.dir
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.Directory
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -410,9 +411,18 @@ abstract class Blueprint(
         res.srcDirs(res(variant))
         resources.srcDirs(resources(variant))
       }
+      // Mark configuration as resolvable
+      project.configurations.getByName(sourceSet.implementationConfigurationName).markResolvable()
       // project.configurations.forEach { compileOnlyConfig ->
       //   sourceSet.cl
       //   sourceSet.compileClasspath.configurationDependencies.add(project.dependencies.create(compileOnlyConfig))
+      // }
+      // project.configurations.forEach { configuration ->
+      //   // Check if the configuration name matches the configurations you want to modify
+      //   if (configuration.name.startsWith("implementation") || configuration.name.startsWith("compileOnly")) {
+      //     // Include the generated sources directories in the configuration
+      //     configuration.extendsFrom(project.configurations.getByName("compileOnly"))
+      //   }
       // }
     }
 
@@ -455,4 +465,11 @@ abstract class Blueprint(
   protected inline fun <reified T : Any> extension(): T? {
     return project.extensions.findByType<T>()
   }
+}
+
+// Extension function to mark configuration as resolvable
+fun Configuration.markResolvable() {
+  isCanBeResolved = true
+  isCanBeConsumed = false
+  isVisible = false
 }
