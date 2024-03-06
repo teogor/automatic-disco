@@ -304,7 +304,7 @@ abstract class Blueprint(
    */
   fun kotlin(variant: String): Directory = codeWriter.sourceOutputDir
     .dir(name)
-    .dir(variant)
+    // .dir(variant)
     .dir("kotlin")
 
   /**
@@ -319,7 +319,7 @@ abstract class Blueprint(
    */
   fun java(variant: String): Directory = codeWriter.sourceOutputDir
     .dir(name)
-    .dir(variant)
+    // .dir(variant)
     .dir("java")
 
   /**
@@ -334,7 +334,7 @@ abstract class Blueprint(
    */
   fun res(variant: String): Directory = codeWriter.sourceOutputDir
     .dir(name)
-    .dir(variant)
+    // .dir(variant)
     .dir("res")
 
   /**
@@ -349,7 +349,7 @@ abstract class Blueprint(
    */
   fun resources(variant: String): Directory = codeWriter.sourceOutputDir
     .dir(name)
-    .dir(variant)
+    // .dir(variant)
     .dir("resources")
 
   /**
