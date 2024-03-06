@@ -23,14 +23,14 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.jetbrains.kotlin.android)
   id("dev.teogor.querent")
-  // id("dev.teogor.querent.x")
+  id("dev.teogor.querent.x")
 }
 
 querent {
   buildFeatures {
-    buildProfile = true
-    xmlResources = true
-    languagesSchema = true
+    buildProfile = false
+    xmlResources = false
+    languagesSchema = false
   }
 
   languagesSchemaOptions {

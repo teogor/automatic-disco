@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("ObjectLiteralToLambda")
+
 package dev.teogor.querent
 
 import com.google.devtools.ksp.gradle.KspTask
@@ -86,8 +88,10 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       "kspPluginClasspathNonEmbeddable"
 
     @JvmStatic
-    fun getKspOutputDir(project: Project, sourceSetName: String, target: String) =
-      File(project.project.buildDir, "generated/ksp/$target/$sourceSetName")
+    fun getKspOutputDir(project: Project, sourceSetName: String, target: String) = File(
+      project.project.buildDir,
+      "generated/querent/languagesSchema/$target",
+    )
 
     @JvmStatic
     fun getKspClassOutputDir(project: Project, sourceSetName: String, target: String) =
@@ -587,25 +591,28 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
             is AbstractKotlinCompile<*> -> kotlinCompile.libraries.from(
               project.files(classOutputDir),
             )
+
             is KotlinNativeCompile -> null // TODO: support binary generation?
           }
         }
       },
     )
 
-    val processResourcesTaskName =
-      (kotlinCompilation as? KotlinCompilationWithResources)?.processResourcesTaskName
-        ?: "processResources"
-    project.locateTask<ProcessResources>(processResourcesTaskName)?.let { provider ->
-      provider.configure(
-        object : Action<ProcessResources> {
-          override fun execute(resourcesTask: ProcessResources) {
-            resourcesTask.from(project.files(resourceOutputDir).builtBy(kspTaskProvider))
-          }
-        },
-      )
-    }
+    val processResourcesTaskName = (
+      kotlinCompilation as? KotlinCompilationWithResources
+      )?.processResourcesTaskName ?: "processResources"
+    project.locateTask<ProcessResources>(processResourcesTaskName)?.configure(
+      object : Action<ProcessResources> {
+        override fun execute(resourcesTask: ProcessResources) {
+          resourcesTask.from(project.files(resourceOutputDir).builtBy(kspTaskProvider))
+        }
+      },
+    )
     if (kotlinCompilation is KotlinJvmAndroidCompilation) {
+      println("sourceSetName=$sourceSetName")
+      println("target=$target")
+      println("--- sync-source-sets --- $kotlinOutputDir")
+      println("--- sync-source-sets --- ${getKspKotlinOutputDir(project, sourceSetName, target)}")
       AndroidPluginIntegration.syncSourceSets(
         project = project,
         kotlinCompilation = kotlinCompilation,
@@ -616,6 +623,8 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
         resourcesOutputDir = project.files(resourceOutputDir),
       )
     }
+
+    println("--- sync-x ---")
 
     return project.provider { emptyList() }
   }

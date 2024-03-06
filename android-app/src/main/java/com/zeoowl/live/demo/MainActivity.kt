@@ -28,8 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.zeoowl.live.demo.build.BuildProfile
-import com.zeoowl.live.demo.lang.SupportedDialects
 import com.zeoowl.live.demo.ui.theme.DemoTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,7 +36,7 @@ class MainActivity : ComponentActivity() {
 
     // Greeter("Querent").greet()
 
-    SupportedDialects().getSupportedDialects()
+    // SupportedDialects().getSupportedDialects()
 
     enableEdgeToEdge()
     setContent {
@@ -49,18 +47,18 @@ class MainActivity : ComponentActivity() {
               .padding(innerPadding)
               .padding(horizontal = 10.dp),
           ) {
-            Item(
-              content = "Is Debuggable: ${BuildProfile.isDebuggable}",
-              modifier = Modifier.padding(vertical = 2.dp),
-            )
-            Item(
-              content = "Version: ${BuildProfile.versionName} (${BuildProfile.versionCode})",
-              modifier = Modifier.padding(vertical = 2.dp),
-            )
-            Item(
-              content = "Build Type: ${BuildProfile.buildType}",
-              modifier = Modifier.padding(vertical = 2.dp),
-            )
+            // Item(
+            //   content = "Is Debuggable: ${BuildProfile.isDebuggable}",
+            //   modifier = Modifier.padding(vertical = 2.dp),
+            // )
+            // Item(
+            //   content = "Version: ${BuildProfile.versionName} (${BuildProfile.versionCode})",
+            //   modifier = Modifier.padding(vertical = 2.dp),
+            // )
+            // Item(
+            //   content = "Build Type: ${BuildProfile.buildType}",
+            //   modifier = Modifier.padding(vertical = 2.dp),
+            // )
           }
         }
 
