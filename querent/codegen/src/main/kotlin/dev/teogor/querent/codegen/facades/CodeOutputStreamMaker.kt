@@ -26,6 +26,7 @@ interface CodeOutputStreamMaker {
   fun makeFile(
     name: String,
     packageName: String,
+    extension: String,
     vararg sourceIds: String,
   ): OutputStream
 }
@@ -38,6 +39,7 @@ fun CodeOutputStreamMaker.writeTo(
   makeFile(
     fileName,
     packageName,
+    extension = "kt",
   ).use { out ->
     OutputStreamWriter(out, StandardCharsets.UTF_8).use { writer ->
       file.writeTo(writer)

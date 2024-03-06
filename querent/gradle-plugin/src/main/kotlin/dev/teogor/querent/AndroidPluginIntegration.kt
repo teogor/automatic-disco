@@ -118,6 +118,7 @@ object AndroidPluginIntegration {
     kotlinCompilation.androidVariant.addJavaSourceFoldersToModel(kspKotlinOutput.dir)
     kotlinCompilation.androidVariant.registerPreJavacGeneratedBytecode(kspClassOutput)
     kotlinCompilation.androidVariant.registerPostJavacGeneratedBytecode(resourcesOutputDir)
+    kotlinCompilation.androidVariant.registerGeneratedResFolders(resourcesOutputDir)
   }
 
   fun syncSourceSets(

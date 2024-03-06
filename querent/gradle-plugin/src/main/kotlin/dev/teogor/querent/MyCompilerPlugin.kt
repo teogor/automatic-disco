@@ -112,8 +112,14 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       File(getKspOutputDir(project, sourceSetName, target), "kotlin")
 
     @JvmStatic
-    fun getKspResourceOutputDir(project: Project, sourceSetName: String, target: String) =
-      File(getKspOutputDir(project, sourceSetName, target), "resources")
+    fun getKspResourceOutputDir(
+      project: Project,
+      sourceSetName: String,
+      target: String,
+    ) = File(
+      getKspOutputDir(project, sourceSetName, target),
+      "resources",
+    )
 
     @JvmStatic
     fun getKspCachesDir(project: Project, sourceSetName: String, target: String) =
@@ -604,12 +610,13 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       },
     )
 
-    val processResourcesTaskName = (
-      kotlinCompilation as? KotlinCompilationWithResources
-      )?.processResourcesTaskName ?: "processResources"
+    val processResourcesTaskName =
+      (kotlinCompilation as? KotlinCompilationWithResources)?.processResourcesTaskName
+        ?: "processResources"
     project.locateTask<ProcessResources>(processResourcesTaskName)?.configure(
       object : Action<ProcessResources> {
         override fun execute(resourcesTask: ProcessResources) {
+          println("processResources -> $resourcesTask")
           resourcesTask.from(project.files(resourceOutputDir).builtBy(kspTaskProvider))
         }
       },
@@ -618,6 +625,7 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       println("sourceSetName=$sourceSetName")
       println("target=$target")
       println("--- sync-source-sets --- $kotlinOutputDir")
+      println("--- sync-source-sets - resourceOutputDir --- $resourceOutputDir")
       println("--- sync-source-sets --- ${getKspKotlinOutputDir(project, sourceSetName, target)}")
       AndroidPluginIntegration.syncSourceSets(
         project = project,

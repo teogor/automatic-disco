@@ -55,5 +55,39 @@ class DemoOutputWriter(
           .build(),
       )
     }.writeWith(codeOutputStreamMaker)
+
+    val xmlContent = """
+    |<?xml version="1.0" encoding="utf-8"?>
+    |<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    |    <locale android:name="ar"/>
+    |    <!-- Deutsch (Deutschland) -->
+    |    <locale android:name="de-DE"/>
+    |    <!-- English (United Kingdom) -->
+    |    <locale android:name="en-GB"/>
+    |    <!-- English (United States) -->
+    |    <locale android:name="en-US"/>
+    |    <!-- español -->
+    |    <locale android:name="es"/>
+    |    <!-- हिन्दी -->
+    |    <locale android:name="hi"/>
+    |    <!-- 日本語 -->
+    |    <locale android:name="ja"/>
+    |    <!-- 한국어 (대한민국) -->
+    |    <locale android:name="ko-KR"/>
+    |    <!-- Nederlands (Nederland) -->
+    |    <locale android:name="nl-NL"/>
+    |    <!-- română (România) -->
+    |    <locale android:name="ro-RO"/>
+    |    <!-- 中文 (中国) -->
+    |    <locale android:name="zh-CN"/>
+    |</locale-config>
+    """.trimMargin()
+    codeOutputStreamMaker.makeFile(
+      name = "xml/locale_config",
+      packageName = "",
+      extension = "xml"
+    ).use { outputStream ->
+      outputStream.write(xmlContent.toByteArray())
+    }
   }
 }

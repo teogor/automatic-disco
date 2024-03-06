@@ -30,6 +30,7 @@ class KspCodeOutputStreamMaker(
   override fun makeFile(
     name: String,
     packageName: String,
+    extension: String,
     vararg sourceIds: String,
   ): OutputStream {
     val dependencies = if (sourceIds.isEmpty()) {
@@ -45,6 +46,7 @@ class KspCodeOutputStreamMaker(
       dependencies = dependencies,
       fileName = name,
       packageName = packageName,
+      extensionName = extension,
     )
   }
 }
