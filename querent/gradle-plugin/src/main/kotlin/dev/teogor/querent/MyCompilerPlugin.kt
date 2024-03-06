@@ -231,7 +231,6 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
     return true
   }
 
-  @OptIn(ExperimentalBuildToolsApi::class)
   override fun applyToCompilation(
     kotlinCompilation: KotlinCompilation<*>,
   ): Provider<List<SubpluginOption>> {
@@ -240,9 +239,12 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       project.locateTask(kotlinCompilation.compileKotlinTaskName)
         ?: return project.provider { emptyList() }
     val kspConfigurations = kspConfigurations.find(kotlinCompilation)
+    println("kspConfigurations -> ${kspConfigurations.toList()}")
+    println("kspConfigurations -> ${kspConfigurations.toList().map { it.allDependencies.toList() }}")
     val nonEmptyKspConfigurations = kspConfigurations.filter { it.allDependencies.isNotEmpty() }
     if (nonEmptyKspConfigurations.isEmpty()) {
-      // return project.provider { emptyList() }
+      // todo
+      //  return project.provider { emptyList() }
     }
     if (kotlinCompileProvider.name == "compileKotlinMetadata") {
       return project.provider { emptyList() }
@@ -622,17 +624,11 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
     project.locateTask<ProcessResources>(processResourcesTaskName)?.configure(
       object : Action<ProcessResources> {
         override fun execute(resourcesTask: ProcessResources) {
-          println("processResources -> $resourcesTask")
           resourcesTask.from(project.files(resourceOutputDir).builtBy(kspTaskProvider))
         }
       },
     )
     if (kotlinCompilation is KotlinJvmAndroidCompilation) {
-      println("sourceSetName=$sourceSetName")
-      println("target=$target")
-      println("--- sync-source-sets --- $kotlinOutputDir")
-      println("--- sync-source-sets - resourceOutputDir --- $resourceOutputDir")
-      println("--- sync-source-sets --- ${getKspKotlinOutputDir(project, sourceSetName, target)}")
       AndroidPluginIntegration.syncSourceSets(
         project = project,
         kotlinCompilation = kotlinCompilation,
@@ -661,8 +657,6 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       ),
       codeGenConfig = CodeGenConfig("dev.teogor.querent.demo"),
     ).generate()
-
-    println("--- sync-x ---")
 
     return project.provider { emptyList() }
   }
