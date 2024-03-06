@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
  */
 class KspConfigurations(private val project: Project) {
   companion object {
-    private const val PREFIX = "querent-x"
+    private const val PREFIX = "querent"
   }
 
   private val allowAllTargetConfiguration = project.findProperty(
@@ -162,14 +162,14 @@ class KspConfigurations(private val project: Project) {
         )
       }
     } else {
-      // target.compilations.configureEach { compilation ->
-      //   compilation.kotlinSourceSetsObservable.forAll { sourceSet ->
-      //         createConfiguration(
-      //             name = getKotlinConfigurationName(compilation, sourceSet),
-      //             readableSetName = sourceSet.name
-      //         )
-      //     }
-      // }
+      target.compilations.forEach { compilation ->
+        compilation.kotlinSourceSetsObservable.forEach { sourceSet ->
+          createConfiguration(
+            name = getKotlinConfigurationName(compilation, sourceSet),
+            readableSetName = sourceSet.name,
+          )
+        }
+      }
     }
   }
 
@@ -196,6 +196,7 @@ class KspConfigurations(private val project: Project) {
       AndroidPluginIntegration.getCompilationSourceSets(compilation).mapTo(results) {
         getAndroidConfigurationName(compilation.target, it)
       }
+      println("results -> androidJvm")
     }
 
     // Include the `ksp` configuration, if it exists, for all compilations.
@@ -203,6 +204,7 @@ class KspConfigurations(private val project: Project) {
       results.add(configurationForAll.name)
     }
 
+    println("results -> ${results.toList()}")
     return results.mapNotNull {
       compilation.target.project.configurations.findByName(it)
     }.toSet()
