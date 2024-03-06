@@ -95,6 +95,10 @@ class LanguagesSchema(data: FoundationData) : Blueprint(data) {
       this.packageDetails.set(packageDetails)
     }
 
+    project.tasks.findByName(
+      "map${variant.name.capitalized()}SourceSetPaths",
+    )?.dependsOn("generateLocaleConfig${variant.name.capitalized()}")
+
     project.afterEvaluate {
       project.tasks["pre${variant.name.capitalized()}Build"].apply {
         dependsOn(generateLocaleConfigTaskProvider)
