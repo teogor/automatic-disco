@@ -98,7 +98,7 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       target: String,
     ) = File(
       project.project.buildDir,
-      "generated/querent/languagesSchema/$target",
+      "generated/querent/$target",
     )
 
     @JvmStatic
