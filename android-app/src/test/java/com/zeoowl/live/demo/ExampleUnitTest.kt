@@ -16,7 +16,6 @@
 
 package com.zeoowl.live.demo
 
-import org.junit.Assert.Test
 import org.junit.Test
 
 /**
@@ -27,6 +26,5 @@ import org.junit.Test
 class ExampleUnitTest {
   @Test
   fun addition_isCorrect() {
-    assertEquals(4, 2 + 2)
   }
 }

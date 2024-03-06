@@ -35,3 +35,10 @@ public final class com/zeoowl/live/demo/ui/theme/TypeKt {
 	public static final fun getTypography ()Landroidx/compose/material3/Typography;
 }
 
+public final class dev/teogor/querent/demo/test/Greeter {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;)V
+	public final fun getName ()Ljava/lang/String;
+	public final fun greet ()V
+}
+

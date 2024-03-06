@@ -20,10 +20,16 @@ package dev.teogor.querent
 
 import com.google.devtools.ksp.gradle.KspTask
 import com.google.devtools.ksp.gradle.toSubpluginOptions
+import dev.teogor.querent.codegen.CodeGenerator
+import dev.teogor.querent.codegen.KspCodeOutputStreamMaker
+import dev.teogor.querent.codegen.model.CodeGenConfig
+import dev.teogor.querent.common.AnyChanges
+import dev.teogor.querent.common.impl.CodeGeneratorImpl
 import dev.teogor.querent.gradle.KspConfigurations
 import dev.teogor.querent.gradle.KspGradleSubplugin
 import dev.teogor.querent.gradle.QUERENT_KOTLIN_BASE_VERSION
 import dev.teogor.querent.gradle.QUERENT_VERSION
+import dev.teogor.querent.processors.KspToCodeGenDestinationsMapper
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -90,7 +96,7 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
     @JvmStatic
     fun getKspOutputDir(project: Project, sourceSetName: String, target: String) = File(
       project.project.buildDir,
-      "generated/querent/languagesSchema/$target",
+      "generated/querent/languagesSchema/$target/$sourceSetName",
     )
 
     @JvmStatic
@@ -623,6 +629,24 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
         resourcesOutputDir = project.files(resourceOutputDir),
       )
     }
+
+    val baseDir = project.buildDir.resolve("generated/querent")
+    CodeGenerator(
+      codeOutputStreamMaker = KspCodeOutputStreamMaker(
+        codeGenerator = CodeGeneratorImpl(
+          classOutputDir,
+          { javaOutputDir },
+          kotlinOutputDir,
+          resourceOutputDir,
+          baseDir,
+          AnyChanges(baseDir),
+          emptyList(),
+          true,
+        ),
+        sourceMapper = KspToCodeGenDestinationsMapper(),
+      ),
+      codeGenConfig = CodeGenConfig("dev.teogor.querent.demo"),
+    ).generate()
 
     println("--- sync-x ---")
 

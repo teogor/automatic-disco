@@ -29,12 +29,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.zeoowl.live.demo.ui.theme.DemoTheme
+import dev.teogor.querent.demo.test.Greeter
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    // Greeter("Querent").greet()
+    Greeter("Querent").greet()
 
     // SupportedDialects().getSupportedDialects()
 
