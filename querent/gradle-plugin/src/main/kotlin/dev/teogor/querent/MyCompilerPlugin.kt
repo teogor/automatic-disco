@@ -86,14 +86,19 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
   companion object {
     const val KSP_PLUGIN_ID = "com.google.devtools.ksp.symbol-processing"
 
+    /**
+     * TODO: Consider generating sourceSetName only for variants with dependencies.
+     *  Currently, sourceSetName is generated for all variants, including those without dependencies.
+     *  As a workaround, you can directly write to the '/target/' directory.
+     */
     @JvmStatic
     fun getKspOutputDir(
       project: Project,
-      sourceSetName: String,
+      @Suppress("UNUSED_PARAMETER") sourceSetName: String,
       target: String,
     ) = File(
       project.project.buildDir,
-      "generated/querent/languagesSchema/$target/$sourceSetName",
+      "generated/querent/languagesSchema/$target",
     )
 
     @JvmStatic
