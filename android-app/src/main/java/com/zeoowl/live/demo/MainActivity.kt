@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
     // Greeter("Querent").greet()
 
     SupportedDialects().getSupportedDialects()
-    
+
     enableEdgeToEdge()
     setContent {
       DemoTheme {

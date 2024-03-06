@@ -28,7 +28,6 @@ import dev.teogor.querent.tasks.GenerateSupportedLocalesTask
 import dev.teogor.querent.tasks.SoakConfiguredLocalesTask
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.project
 import org.gradle.kotlin.dsl.register
 
 /**
