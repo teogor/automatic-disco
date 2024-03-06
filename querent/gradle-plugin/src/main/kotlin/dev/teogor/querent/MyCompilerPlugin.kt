@@ -85,45 +85,51 @@ import java.io.File
 class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
   companion object {
     const val KSP_PLUGIN_ID = "com.google.devtools.ksp.symbol-processing"
-    const val KSP_API_ID = "symbol-processing-api"
-    const val KSP_COMPILER_PLUGIN_ID = "symbol-processing"
-    const val KSP_COMPILER_PLUGIN_ID_NON_EMBEDDABLE = "symbol-processing-cmdline"
-    const val KSP_GROUP_ID = "com.google.devtools.ksp"
-    const val KSP_PLUGIN_CLASSPATH_CONFIGURATION_NAME = "kspPluginClasspath"
-    const val KSP_PLUGIN_CLASSPATH_CONFIGURATION_NAME_NON_EMBEDDABLE =
-      "kspPluginClasspathNonEmbeddable"
 
     @JvmStatic
-    fun getKspOutputDir(project: Project, sourceSetName: String, target: String) = File(
+    fun getKspOutputDir(
+      project: Project,
+      sourceSetName: String,
+      target: String,
+    ) = File(
       project.project.buildDir,
       "generated/querent/languagesSchema/$target/$sourceSetName",
     )
 
     @JvmStatic
-    fun getKspClassOutputDir(project: Project, sourceSetName: String, target: String) =
-      File(getKspOutputDir(project, sourceSetName, target), "classes")
+    fun getKspClassOutputDir(
+      project: Project,
+      sourceSetName: String,
+      target: String,
+    ) = File(getKspOutputDir(project, sourceSetName, target), "classes")
 
     @JvmStatic
-    fun getKspJavaOutputDir(project: Project, sourceSetName: String, target: String) =
-      File(getKspOutputDir(project, sourceSetName, target), "java")
+    fun getKspJavaOutputDir(
+      project: Project,
+      sourceSetName: String,
+      target: String,
+    ) = File(getKspOutputDir(project, sourceSetName, target), "java")
 
     @JvmStatic
-    fun getKspKotlinOutputDir(project: Project, sourceSetName: String, target: String) =
-      File(getKspOutputDir(project, sourceSetName, target), "kotlin")
+    fun getKspKotlinOutputDir(
+      project: Project,
+      sourceSetName: String,
+      target: String,
+    ) = File(getKspOutputDir(project, sourceSetName, target), "kotlin")
 
     @JvmStatic
     fun getKspResourceOutputDir(
       project: Project,
       sourceSetName: String,
       target: String,
-    ) = File(
-      getKspOutputDir(project, sourceSetName, target),
-      "resources",
-    )
+    ) = File(getKspOutputDir(project, sourceSetName, target), "resources")
 
     @JvmStatic
-    fun getKspCachesDir(project: Project, sourceSetName: String, target: String) =
-      File(project.project.buildDir, "kspCaches/$target/$sourceSetName")
+    fun getKspCachesDir(
+      project: Project,
+      sourceSetName: String,
+      target: String,
+    ) = File(project.project.buildDir, "kspCaches/$target/$sourceSetName")
 
     @JvmStatic
     private fun getSubpluginOptions(
