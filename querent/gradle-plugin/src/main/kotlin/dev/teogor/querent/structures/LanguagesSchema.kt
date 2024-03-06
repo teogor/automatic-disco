@@ -52,58 +52,58 @@ class LanguagesSchema(data: FoundationData) : Blueprint(data) {
   override fun onVariants(variant: Variant) {
     super.onVariants(variant)
 
-    val kotlin = kotlinSources
-    val res = resSources
-    var variantResourceConfig = rawResourceConfig.toMutableSet()
-
-    val packageDetails = PackageDetails(
-      packageName = packageName,
-      namespace = namespace,
-    )
-
-    if (!variant.pseudoLocalesEnabled.getOrElse(false)) {
-      variantResourceConfig = variantResourceConfig.subtract(
-        setOf("en-rXA", "ar-rXB"),
-      ).toMutableSet()
-    }
-
-    val languageListTaskProvider = project.tasks.register<SoakConfiguredLocalesTask>(
-      "soakConfiguredLocales${variant.name.capitalized()}",
-    ) {
-      resourceConfigInput.set(variantResourceConfig)
-      languageTagListOutput.set(intermediates.file("${variant.name}/soaked_locale_list.txt"))
-    }
-
-    val generateLocaleConfigTaskProvider = project.tasks.register<GenerateLocaleConfigTask>(
-      "generateLocaleConfig${variant.name.capitalized()}",
-    ) {
-      languageListInput.set(languageListTaskProvider.flatMap { it.languageTagListOutput })
-      localeConfigOutput.set(
-        res.file("xml/locale_config.xml"),
-      )
-    }
-
-    val generateSupportedLocalesTaskProvider = project.tasks.register<GenerateSupportedLocalesTask>(
-      "generateSupportedLocales${variant.name.capitalized()}",
-    ) {
-      languageListInput.set(languageListTaskProvider.flatMap { it.languageTagListOutput })
-      outputDir.set(kotlin)
-      packageName.set(this@LanguagesSchema.packageName)
-      defaultLocaleProperty.set(
-        languagesSchemaOptions.unqualifiedResLocale.asLanguageTag().generateTagWithRegion(),
-      )
-      this.packageDetails.set(packageDetails)
-    }
-
-    project.tasks.findByName(
-      "map${variant.name.capitalized()}SourceSetPaths",
-    )?.dependsOn("generateLocaleConfig${variant.name.capitalized()}")
-
-    project.afterEvaluate {
-      project.tasks["pre${variant.name.capitalized()}Build"].apply {
-        dependsOn(generateLocaleConfigTaskProvider)
-        dependsOn(generateSupportedLocalesTaskProvider)
-      }
-    }
+    // val kotlin = kotlinSources
+    // val res = resSources
+    // var variantResourceConfig = rawResourceConfig.toMutableSet()
+    //
+    // val packageDetails = PackageDetails(
+    //   packageName = packageName,
+    //   namespace = namespace,
+    // )
+    //
+    // if (!variant.pseudoLocalesEnabled.getOrElse(false)) {
+    //   variantResourceConfig = variantResourceConfig.subtract(
+    //     setOf("en-rXA", "ar-rXB"),
+    //   ).toMutableSet()
+    // }
+    //
+    // val languageListTaskProvider = project.tasks.register<SoakConfiguredLocalesTask>(
+    //   "soakConfiguredLocales${variant.name.capitalized()}",
+    // ) {
+    //   resourceConfigInput.set(variantResourceConfig)
+    //   languageTagListOutput.set(intermediates.file("${variant.name}/soaked_locale_list.txt"))
+    // }
+    //
+    // val generateLocaleConfigTaskProvider = project.tasks.register<GenerateLocaleConfigTask>(
+    //   "generateLocaleConfig${variant.name.capitalized()}",
+    // ) {
+    //   languageListInput.set(languageListTaskProvider.flatMap { it.languageTagListOutput })
+    //   localeConfigOutput.set(
+    //     res.file("xml/locale_config.xml"),
+    //   )
+    // }
+    //
+    // val generateSupportedLocalesTaskProvider = project.tasks.register<GenerateSupportedLocalesTask>(
+    //   "generateSupportedLocales${variant.name.capitalized()}",
+    // ) {
+    //   languageListInput.set(languageListTaskProvider.flatMap { it.languageTagListOutput })
+    //   outputDir.set(kotlin)
+    //   packageName.set(this@LanguagesSchema.packageName)
+    //   defaultLocaleProperty.set(
+    //     languagesSchemaOptions.unqualifiedResLocale.asLanguageTag().generateTagWithRegion(),
+    //   )
+    //   this.packageDetails.set(packageDetails)
+    // }
+    //
+    // project.tasks.findByName(
+    //   "map${variant.name.capitalized()}SourceSetPaths",
+    // )?.dependsOn("generateLocaleConfig${variant.name.capitalized()}")
+    //
+    // project.afterEvaluate {
+    //   project.tasks["pre${variant.name.capitalized()}Build"].apply {
+    //     dependsOn(generateLocaleConfigTaskProvider)
+    //     dependsOn(generateSupportedLocalesTaskProvider)
+    //   }
+    // }
   }
 }
