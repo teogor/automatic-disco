@@ -8,6 +8,7 @@ pluginManagement {
         includeGroupByRegex("androidx.*")
       }
     }
+    maven("https://androidx.dev/storage/compose-compiler/repository/")
     mavenCentral()
     gradlePluginPortal()
   }
