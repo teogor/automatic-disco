@@ -19,6 +19,19 @@ fun isProductionEnvironment(): Boolean {
 println("isVirtualEnvironment - ${isVirtualEnvironment()}")
 println("isProductionEnvironment - ${isProductionEnvironment()}")
 
+val mavenLocalRepoPath = "${System.getProperty("user.home")}/.m2/repository"
+println("Maven local repository path: $mavenLocalRepoPath")
+
+val mavenLocalRepoDir = File(mavenLocalRepoPath)
+if (mavenLocalRepoDir.exists() && mavenLocalRepoDir.isDirectory) {
+  println("Maven local repository contents:")
+  mavenLocalRepoDir.listFiles()?.forEach {
+    println(it.name)
+  }
+} else {
+  println("Maven local repository directory not found or is not a directory.")
+}
+
 pluginManagement {
   includeBuild("querent")
 
