@@ -55,6 +55,10 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
+      - name: Publish to Maven Local
+        run: ./gradlew :querent:symbol-processing:publishMavenPublicationToMavenLocal --no-configuration-cache
+        continue-on-error: true
+
       - name: Build with Gradle
         run: |
           ./gradlew --scan --stacktrace \
