@@ -34,7 +34,6 @@ jobs:
 
       - name: Publish to Maven Local
         run: ./gradlew :querent:symbol-processing:publishMavenPublicationToMavenLocal --no-configuration-cache
-        continue-on-error: true
 
       - name: List M2 repository contents
         run: |
