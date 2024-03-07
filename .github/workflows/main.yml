@@ -38,7 +38,7 @@ jobs:
 
       - name: List M2 repository contents
         run: |
-          ls -R .m2/repository/
+          ls -R ./
 
   beta-build:
     runs-on: ubuntu-latest
