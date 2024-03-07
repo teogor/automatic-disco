@@ -35,6 +35,12 @@ jobs:
       - name: Publish to Maven Local
         run: ./gradlew :querent:symbol-processing:publishMavenPublicationToMavenLocal --no-configuration-cache
 
+      - name: Archive Maven local repository
+        uses: actions/upload-artifact@v2
+        with:
+          name: maven-local-repo
+          path: ~/.m2/repository
+
       - name: List M2 repository contents
         run: ls -la
 
