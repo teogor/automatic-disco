@@ -63,9 +63,11 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
-      - name: Publish to Maven Local
-        run: ./gradlew :querent:symbol-processing:publishMavenPublicationToMavenLocal --no-configuration-cache
-        continue-on-error: true
+      - name: Download Maven local repository artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: maven-local-repo
+          path: ~/.m2/repository
 
       - name: Build with Gradle
         run: |
@@ -97,6 +99,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
       - name: Make Gradle executable
         run: chmod +x ./gradlew
+
+      - name: Download Maven local repository artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: maven-local-repo
+          path: ~/.m2/repository
 
       - name: Build with Gradle
         run: ./gradlew build
