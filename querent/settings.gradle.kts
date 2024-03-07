@@ -29,7 +29,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "querent-plugin"
 
-// Pre-Built
+include("codegen")
 include("gradle-plugin")
 include("gradle-plugin-api")
-include("codegen")
+include("symbol-processing")

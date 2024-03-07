@@ -114,8 +114,8 @@ abstract class WriteVersionSrcTask @Inject constructor(
       """
       |package dev.teogor.querent.gradle
       |
-      |val QUERENT_KOTLIN_BASE_VERSION = "$kotlinVersion"
-      |val QUERENT_VERSION = "$querentVersion"
+      |const val QUERENT_KOTLIN_BASE_VERSION = "$kotlinVersion"
+      |const val QUERENT_VERSION = "$querentVersion"
       """.trimMargin()
     )
   }

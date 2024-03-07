@@ -25,10 +25,8 @@ import dev.teogor.querent.codegen.KspCodeOutputStreamMaker
 import dev.teogor.querent.codegen.model.CodeGenConfig
 import dev.teogor.querent.common.AnyChanges
 import dev.teogor.querent.common.impl.CodeGeneratorImpl
+import dev.teogor.querent.commons.QuerentConstants
 import dev.teogor.querent.gradle.KspConfigurations
-import dev.teogor.querent.gradle.KspGradleSubplugin
-import dev.teogor.querent.gradle.QUERENT_KOTLIN_BASE_VERSION
-import dev.teogor.querent.gradle.QUERENT_VERSION
 import dev.teogor.querent.processors.KspToCodeGenDestinationsMapper
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -40,13 +38,11 @@ import org.gradle.api.artifacts.transform.TransformSpec
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.language.jvm.tasks.ProcessResources
-import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.SourcesChanges
@@ -59,7 +55,6 @@ import org.jetbrains.kotlin.gradle.internal.kapt.incremental.StructureTransformA
 import org.jetbrains.kotlin.gradle.internal.kapt.incremental.StructureTransformLegacyAction
 import org.jetbrains.kotlin.gradle.plugin.CompilerPluginConfig
 import org.jetbrains.kotlin.gradle.plugin.FilesSubpluginOption
-import org.jetbrains.kotlin.gradle.plugin.InternalSubpluginOption
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilationWithResources
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
@@ -84,8 +79,6 @@ import java.io.File
 
 class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
   companion object {
-    const val KSP_PLUGIN_ID = "com.google.devtools.ksp.symbol-processing"
-
     /**
      * TODO: Consider generating sourceSetName only for variants with dependencies.
      *  Currently, sourceSetName is generated for all variants, including those without dependencies.
@@ -135,75 +128,6 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
       sourceSetName: String,
       target: String,
     ) = File(project.project.buildDir, "kspCaches/$target/$sourceSetName")
-
-    @JvmStatic
-    private fun getSubpluginOptions(
-      project: Project,
-      sourceSetName: String,
-      target: String,
-      isIncremental: Boolean,
-      allWarningsAsErrors: Boolean,
-      commandLineArgumentProviders: ListProperty<CommandLineArgumentProvider>,
-      commonSources: List<File>,
-    ): List<SubpluginOption> {
-      val options = mutableListOf<SubpluginOption>()
-      options +=
-        InternalSubpluginOption(
-          "classOutputDir",
-          getKspClassOutputDir(project, sourceSetName, target).path,
-        )
-      options +=
-        InternalSubpluginOption(
-          "javaOutputDir",
-          getKspJavaOutputDir(project, sourceSetName, target).path,
-        )
-      options +=
-        InternalSubpluginOption(
-          "kotlinOutputDir",
-          getKspKotlinOutputDir(project, sourceSetName, target).path,
-        )
-      options += InternalSubpluginOption(
-        "resourceOutputDir",
-        getKspResourceOutputDir(project, sourceSetName, target).path,
-      )
-      options += InternalSubpluginOption(
-        "cachesDir",
-        getKspCachesDir(project, sourceSetName, target).path,
-      )
-      options += InternalSubpluginOption(
-        "kspOutputDir",
-        getKspOutputDir(project, sourceSetName, target).path,
-      )
-      options += SubpluginOption("incremental", isIncremental.toString())
-      options += SubpluginOption(
-        "incrementalLog",
-        project.findProperty("ksp.incremental.log")?.toString() ?: "false",
-      )
-      options += InternalSubpluginOption("projectBaseDir", project.project.projectDir.canonicalPath)
-      options += SubpluginOption("allWarningsAsErrors", allWarningsAsErrors.toString())
-      // Turn this on by default to work KT-30172 around. It is off by default in the compiler plugin.
-      options += SubpluginOption(
-        "returnOkOnError",
-        project.findProperty("ksp.return.ok.on.error")?.toString() ?: "true",
-      )
-      commonSources.ifNotEmpty {
-        options += FilesSubpluginOption("commonSources", this)
-      }
-
-      options += SubpluginOption(
-        "mapAnnotationArgumentsInJava",
-        project.findProperty("ksp.map.annotation.arguments.in.java")?.toString() ?: "false",
-      )
-      commandLineArgumentProviders.get().forEach {
-        it.asArguments().forEach { argument ->
-          if (!argument.matches(Regex("\\S+=\\S+"))) {
-            throw IllegalArgumentException("KSP apoption does not match \\S+=\\S+: $argument")
-          }
-          options += InternalSubpluginOption("apoption", argument)
-        }
-      }
-      return options
-    }
   }
 
   private lateinit var kspConfigurations: KspConfigurations
@@ -213,7 +137,7 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
 
   override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean {
     val project = kotlinCompilation.target.project
-    val kspVersion = ApiVersion.parse(QUERENT_KOTLIN_BASE_VERSION)!!
+    val kspVersion = ApiVersion.parse(QuerentConstants.KOTLIN_BASE_VERSION)!!
     val kotlinVersion = ApiVersion.parse(project.getKotlinPluginVersion())!!
 
     // Check version and show warning by default.
@@ -221,14 +145,15 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
     if (!noVersionCheck) {
       if (kspVersion < kotlinVersion) {
         project.logger.warn(
-          "querent-$QUERENT_VERSION is too old for kotlin-$kotlinVersion. " +
-            "Please upgrade querent or downgrade kotlin-gradle-plugin to $QUERENT_KOTLIN_BASE_VERSION.",
+          "querent-${QuerentConstants.VERSION} is too old for kotlin-$kotlinVersion. " +
+            "Please upgrade querent or downgrade kotlin-gradle-plugin to " +
+            "${QuerentConstants.KOTLIN_BASE_VERSION}.",
         )
       }
       if (kspVersion > kotlinVersion) {
         project.logger.warn(
-          "querent-$QUERENT_VERSION is too new for kotlin-$kotlinVersion. " +
-            "Please upgrade kotlin-gradle-plugin to $QUERENT_KOTLIN_BASE_VERSION.",
+          "querent-${QuerentConstants.VERSION} is too new for kotlin-$kotlinVersion. " +
+            "Please upgrade kotlin-gradle-plugin to ${QuerentConstants.KOTLIN_BASE_VERSION}.",
         )
       }
     }
@@ -377,7 +302,7 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
         project.provider {
           CompilerPluginConfig().apply {
             (kspTask as KspTask).options.get().forEach {
-              addPluginArgument(KSP_PLUGIN_ID, it)
+              addPluginArgument(QuerentConstants.PLUGIN_ID, it)
             }
           }
         },
@@ -666,11 +591,11 @@ class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
     return project.provider { emptyList() }
   }
 
-  override fun getCompilerPluginId() = KspGradleSubplugin.KSP_PLUGIN_ID
+  override fun getCompilerPluginId() = QuerentConstants.PLUGIN_ID
   override fun getPluginArtifact() = SubpluginArtifact(
-    groupId = "com.google.devtools.ksp",
-    artifactId = KspGradleSubplugin.KSP_COMPILER_PLUGIN_ID,
-    version = "1.9.22-1.0.17", // KSP_VERSION,
+    groupId = QuerentConstants.GROUP_ID,
+    artifactId = QuerentConstants.COMPILER_PLUGIN_ID,
+    version = QuerentConstants.VERSION,
   )
 }
 

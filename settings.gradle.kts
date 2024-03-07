@@ -1,5 +1,4 @@
 pluginManagement {
-  includeBuild("querent/")
   repositories {
     google {
       content {
@@ -22,9 +21,7 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Querent"
+rootProject.name = "querent-root"
 
 include("android-app")
-
-// Pre-Built
-// include("examples")
+includeBuild("querent/")
