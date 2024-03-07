@@ -49,6 +49,13 @@ jobs:
     needs: publish-to-maven-local
     steps:
       - uses: actions/checkout@v3
+
+      - name: Download Maven local repository artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: maven-local-repo
+          path: ~/.m2/repository
+      
       - name: set up JDK
         uses: actions/setup-java@v3
         with:
@@ -63,12 +70,6 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
-      - name: Download Maven local repository artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: maven-local-repo
-          path: ~/.m2/repository
-
       - name: Build with Gradle
         run: |
           ./gradlew --scan --stacktrace \
@@ -79,6 +80,12 @@ jobs:
     needs: publish-to-maven-local
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download Maven local repository artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: maven-local-repo
+          path: ~/.m2/repository
 
       - name: set up JDK
         uses: actions/setup-java@v4
@@ -99,12 +106,6 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
       - name: Make Gradle executable
         run: chmod +x ./gradlew
-
-      - name: Download Maven local repository artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: maven-local-repo
-          path: ~/.m2/repository
 
       - name: Build with Gradle
         run: ./gradlew build
