@@ -22,6 +22,7 @@ import dev.teogor.querent.api.codegen.Blueprint
 import dev.teogor.querent.api.codegen.FoundationData
 import dev.teogor.querent.api.impl.QuerentConfiguratorExtension
 import dev.teogor.querent.api.models.PackageDetails
+import dev.teogor.querent.codegen.processing.CodeGenerator
 import dev.teogor.querent.tasks.GenerateBuildProfileFileTask
 import dev.teogor.querent.tasks.GenerateBuildTypesTask
 import dev.teogor.querent.utils.GitHashValueSource
@@ -31,7 +32,10 @@ import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.of
 import org.gradle.kotlin.dsl.register
 
-class BuildProfile(data: FoundationData) : Blueprint(data) {
+class BuildProfile(
+  data: FoundationData,
+  codeGenerator: CodeGenerator,
+) : Blueprint(data) {
 
   private val appExtension by lazy { extension<AppExtension>()!! }
   private val buildOptions by lazy { extension<QuerentConfiguratorExtension>()!! }

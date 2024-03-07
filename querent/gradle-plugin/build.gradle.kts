@@ -82,16 +82,12 @@ winds {
   }
 }
 
-afterEvaluate {
-  version = "1.0.0-alpha03-SNAPSHOT-8f9a736"
-}
-
 buildConfig {
   packageName("dev.teogor.querent")
 
   afterEvaluate {
-    buildConfigField("String", "NAME", "\"${group}\"")
-    buildConfigField("String", "VERSION", "\"${version}\"")
+    buildConfigField("String", "NAME", "\"$group\"")
+    buildConfigField("String", "VERSION", "\"$version\"")
   }
 }
 
@@ -117,7 +113,7 @@ val querentVersionDir = File(project.buildDir, "generated/querent-versions")
 afterEvaluate {
   val writeVersionSrcTask = tasks.register<WriteVersionSrcTask>(
     "generateQuerentVersions",
-    version,
+    version.toString(),
     libs.versions.kotlin.asProvider().get(),
     querentVersionDir,
   )

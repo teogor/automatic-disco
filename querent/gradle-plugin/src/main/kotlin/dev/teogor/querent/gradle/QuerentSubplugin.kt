@@ -20,6 +20,7 @@ package dev.teogor.querent.gradle
 
 import com.google.devtools.ksp.gradle.KspTask
 import com.google.devtools.ksp.gradle.toSubpluginOptions
+import dev.teogor.querent.api.codegen.impl.initializePlugin
 import dev.teogor.querent.ktx.markResolvable
 import dev.teogor.querent.codegen.CodeGenerator
 import dev.teogor.querent.codegen.KspCodeOutputStreamMaker
@@ -29,6 +30,7 @@ import dev.teogor.querent.common.impl.CodeGeneratorImpl
 import dev.teogor.querent.commons.QuerentConstants
 import dev.teogor.querent.gradle.QuerentConfigurations
 import dev.teogor.querent.processors.KspToCodeGenDestinationsMapper
+import dev.teogor.querent.structures.BuildProfile
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -134,6 +136,7 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
   private lateinit var querentConfigurations: QuerentConfigurations
   override fun apply(target: Project) {
     querentConfigurations = QuerentConfigurations(target)
+    // target.initializePlugin<BuildProfile>()
   }
 
   override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean {
@@ -593,11 +596,7 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
   }
 
   override fun getCompilerPluginId() = QuerentConstants.PLUGIN_ID
-  override fun getPluginArtifact() = SubpluginArtifact(
-    groupId = QuerentConstants.GROUP_ID,
-    artifactId = QuerentConstants.COMPILER_PLUGIN_ID,
-    version = QuerentConstants.VERSION,
-  )
+  override fun getPluginArtifact() = QuerentConstants.PLUGIN_ARTIFACT
 }
 
 // Copied from kotlin-gradle-plugin, because they are internal.

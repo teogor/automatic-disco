@@ -107,7 +107,7 @@ afterWindsPluginConfiguration { winds ->
     if (mavenPublish.canBePublished) {
       mavenPublishing {
         publishToMavenCentral(SonatypeHost.S01)
-        signAllPublications()
+        // signAllPublications()
 
         @Suppress("UnstableApiUsage")
         pom {

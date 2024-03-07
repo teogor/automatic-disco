@@ -16,61 +16,21 @@
 
 package dev.teogor.querent
 
-import com.google.devtools.ksp.gradle.KspConfigurations
-import com.google.devtools.ksp.gradle.KspGradleSubplugin
 import dev.teogor.querent.api.codegen.impl.initializePlugin
 import dev.teogor.querent.api.impl.QuerentConfiguratorExtension
-import dev.teogor.querent.codegen.CodeGenerator
-import dev.teogor.querent.codegen.KspCodeOutputStreamMaker
-import dev.teogor.querent.codegen.model.CodeGenConfig
-import dev.teogor.querent.common.AnyChanges
-import dev.teogor.querent.common.impl.CodeGeneratorImpl
-import dev.teogor.querent.processors.KspToCodeGenDestinationsMapper
-import dev.teogor.querent.structures.BuildProfile
 import dev.teogor.querent.structures.LanguagesSchema
 import dev.teogor.querent.structures.XmlResources
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.kotlin.dsl.create
-import java.io.File
 
 class Plugin : Plugin<Project> {
   override fun apply(target: Project) {
-    // kspConfigurations = KspConfigurations(target)
-
-    // val baseDir = target.project.buildDir.resolve("generated/beta/querent")
-    // val classesDir = File(baseDir, "classes")
-    // classesDir.mkdirs()
-    // val javaDir = File(baseDir, "java")
-    // javaDir.mkdirs()
-    // val kotlinDir = File(baseDir, "kotlin")
-    // kotlinDir.mkdirs()
-    // val resourcesDir = File(baseDir, "resources")
-    // resourcesDir.mkdirs()
-    // CodeGenerator(
-    //   codeOutputStreamMaker = KspCodeOutputStreamMaker(
-    //     codeGenerator = CodeGeneratorImpl(
-    //       classesDir,
-    //       { javaDir },
-    //       kotlinDir,
-    //       resourcesDir,
-    //       baseDir,
-    //       AnyChanges(baseDir),
-    //       emptyList(),
-    //       true,
-    //     ),
-    //     sourceMapper = KspToCodeGenDestinationsMapper(),
-    //   ),
-    //   codeGenConfig = CodeGenConfig("com.zeoowl.live.demo"),
-    // ).generate()
-
     with(target) {
       extensions.create<QuerentConfiguratorExtension>(
         name = "querent",
       )
 
-      initializePlugin<BuildProfile>()
       initializePlugin<XmlResources>()
       initializePlugin<LanguagesSchema>()
     }

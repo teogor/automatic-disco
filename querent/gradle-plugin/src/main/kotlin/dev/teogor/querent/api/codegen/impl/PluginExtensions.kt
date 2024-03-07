@@ -18,6 +18,7 @@ package dev.teogor.querent.api.codegen.impl
 
 import dev.teogor.querent.api.codegen.Blueprint
 import dev.teogor.querent.api.codegen.FoundationData
+import dev.teogor.querent.codegen.processing.CodeGenerator
 import org.gradle.api.Project
 import kotlin.reflect.full.primaryConstructor
 
@@ -39,6 +40,31 @@ inline fun <reified Plugin : Blueprint> Project.initializePlugin() {
   } else {
     val expectedSignature =
       "class ${Plugin::class.simpleName}(data: FoundationData) : Blueprint(data)"
+    error("Invalid plugin declaration. Expected: $expectedSignature")
+  }
+}
+
+inline fun <reified Plugin : Blueprint> Project.initializePlugin(
+  codeGenerator: CodeGenerator,
+) {
+  val primaryConstructor = Plugin::class.primaryConstructor
+  val validPlugin = if (primaryConstructor != null) {
+    primaryConstructor.parameters.size == 1 && primaryConstructor.parameters[0].type.classifier == FoundationData::class
+  } else {
+    false
+  }
+  if (validPlugin && primaryConstructor != null) {
+    val codeWriterImpl = CodeWriterImpl(this)
+    val initializationData = FoundationData(
+      project = project,
+      codeWriter = codeWriterImpl,
+    )
+    val pluginInstance = primaryConstructor.call(initializationData)
+    pluginInstance.onCreate()
+  } else {
+    val expectedSignature = """
+    |class ${Plugin::class.simpleName}(data: FoundationData, codeGenerator: CodeGenerator) : Blueprint(data)
+    """.trimMargin()
     error("Invalid plugin declaration. Expected: $expectedSignature")
   }
 }

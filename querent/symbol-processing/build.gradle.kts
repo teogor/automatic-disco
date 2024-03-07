@@ -26,6 +26,6 @@ dependencies {
 winds {
   mavenPublish {
     displayName = "Querent KSP"
-    name = "ksp"
+    name = "symbol-processing"
   }
 }
