@@ -67,7 +67,7 @@ gradlePlugin {
 
     register("querentPluginX") {
       id = "dev.teogor.querent.x"
-      implementationClass = "dev.teogor.querent.QuerentSubplugin"
+      implementationClass = "dev.teogor.querent.gradle.QuerentSubplugin"
       displayName = "KspGradleSubplugin Plugin"
       description = "Querent lays the groundwork for your project's resource management, fostering consistency and efficiency across your development workflow."
       tags = listOf("android", "kotlin", "productivity", "tools", "dsl", "code-generation", "teogor")

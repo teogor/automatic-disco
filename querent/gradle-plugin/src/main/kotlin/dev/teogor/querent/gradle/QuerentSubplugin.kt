@@ -16,7 +16,7 @@
 
 @file:Suppress("ObjectLiteralToLambda")
 
-package dev.teogor.querent
+package dev.teogor.querent.gradle
 
 import com.google.devtools.ksp.gradle.KspTask
 import com.google.devtools.ksp.gradle.toSubpluginOptions
@@ -27,7 +27,7 @@ import dev.teogor.querent.codegen.model.CodeGenConfig
 import dev.teogor.querent.common.AnyChanges
 import dev.teogor.querent.common.impl.CodeGeneratorImpl
 import dev.teogor.querent.commons.QuerentConstants
-import dev.teogor.querent.gradle.KspConfigurations
+import dev.teogor.querent.gradle.QuerentConfigurations
 import dev.teogor.querent.processors.KspToCodeGenDestinationsMapper
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -131,9 +131,9 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
     ) = File(project.project.buildDir, "kspCaches/$target/$sourceSetName")
   }
 
-  private lateinit var kspConfigurations: KspConfigurations
+  private lateinit var querentConfigurations: QuerentConfigurations
   override fun apply(target: Project) {
-    kspConfigurations = KspConfigurations(target)
+    querentConfigurations = QuerentConfigurations(target)
   }
 
   override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean {
@@ -169,7 +169,7 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
     val kotlinCompileProvider: TaskProvider<AbstractKotlinCompileTool<*>> =
       project.locateTask(kotlinCompilation.compileKotlinTaskName)
         ?: return project.provider { emptyList() }
-    val kspConfigurations = kspConfigurations.find(kotlinCompilation)
+    val kspConfigurations = querentConfigurations.find(kotlinCompilation)
     println("kspConfigurations -> ${kspConfigurations.toList()}")
     println("kspConfigurations -> ${kspConfigurations.toList().map { it.allDependencies.toList() }}")
     val nonEmptyKspConfigurations = kspConfigurations.filter { it.allDependencies.isNotEmpty() }

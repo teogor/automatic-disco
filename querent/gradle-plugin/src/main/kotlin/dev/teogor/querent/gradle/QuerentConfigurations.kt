@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 /**
  * Creates and retrieves ksp-related configurations.
  */
-class KspConfigurations(private val project: Project) {
+class QuerentConfigurations(private val project: Project) {
   companion object {
     private const val PREFIX = "querent"
   }

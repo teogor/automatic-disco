@@ -21,7 +21,9 @@ import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.SourceKind
 import com.google.devtools.ksp.gradle.KspAATask
 import com.google.devtools.ksp.gradle.KspTaskJvm
+import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
@@ -34,14 +36,11 @@ import java.io.File
  * without the Android plugin. The downside is that we need to ensure never to access Android
  * plugin APIs directly without checking its existence (we have tests covering that case).
  */
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage") // some android APIs are unsable.
 object AndroidPluginIntegration {
 
-  private val agpPluginIds = listOf(
-    "com.android.application",
-    "com.android.library",
-    "com.android.dynamic-feature",
-  )
+  private val agpPluginIds =
+    listOf("com.android.application", "com.android.library", "com.android.dynamic-feature")
 
   fun forEachAndroidSourceSet(project: Project, onSourceSet: (String) -> Unit) {
     agpPluginIds.forEach { agpPluginId ->
@@ -58,11 +57,8 @@ object AndroidPluginIntegration {
       is CommonExtension<*, *, *, *, *> -> androidExt.sourceSets
       else -> throw RuntimeException("Unsupported Android Gradle plugin version.")
     }
-    // sourceSets.all {
-    //   onSourceSet((this as AndroidSourceSet).name)
-    // }
-    sourceSets.forEach { sourceSet ->
-      onSourceSet(sourceSet.name)
+    sourceSets.forEach {
+      onSourceSet(it.name)
     }
   }
 
@@ -81,24 +77,32 @@ object AndroidPluginIntegration {
     kspTaskProvider: TaskProvider<*>,
   ) {
     kotlinCompilation.androidVariant.getSourceFolders(SourceKind.JAVA).forEach { source ->
-      kspTaskProvider.configure {
-        if (this as? KspTaskJvm != null) {
-          setSource(source)
-          dependsOn(source)
-        } else if (this as? KspAATask != null) {
-          kspConfig.javaSourceRoots.from(source)
-          dependsOn(source)
-        } else {
-          Unit
-        }
-      }
+      kspTaskProvider.configure(
+        object : Action<Task> {
+          override fun execute(task: Task) {
+            when (task) {
+              is KspTaskJvm -> {
+                task.setSource(source)
+                task.dependsOn(source)
+              }
+
+              is KspAATask -> {
+                task.kspConfig.javaSourceRoots.from(source)
+                task.dependsOn(source)
+              }
+
+              else -> Unit
+            }
+          }
+        },
+      )
     }
   }
 
   private fun registerGeneratedSources(
     project: Project,
     kotlinCompilation: KotlinJvmAndroidCompilation,
-    kspTaskProvider: TaskProvider<KspTaskJvm>,
+    kspTaskProvider: TaskProvider<*>,
     javaOutputDir: File,
     kotlinOutputDir: File,
     classOutputDir: File,
@@ -114,12 +118,13 @@ object AndroidPluginIntegration {
     kotlinCompilation.androidVariant.addJavaSourceFoldersToModel(kspKotlinOutput.dir)
     kotlinCompilation.androidVariant.registerPreJavacGeneratedBytecode(kspClassOutput)
     kotlinCompilation.androidVariant.registerPostJavacGeneratedBytecode(resourcesOutputDir)
+    kotlinCompilation.androidVariant.registerGeneratedResFolders(resourcesOutputDir)
   }
 
   fun syncSourceSets(
     project: Project,
     kotlinCompilation: KotlinJvmAndroidCompilation,
-    kspTaskProvider: TaskProvider<KspTaskJvm>,
+    kspTaskProvider: TaskProvider<*>,
     javaOutputDir: File,
     kotlinOutputDir: File,
     classOutputDir: File,

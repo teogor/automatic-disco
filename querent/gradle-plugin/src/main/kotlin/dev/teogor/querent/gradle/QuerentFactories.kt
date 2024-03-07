@@ -18,13 +18,13 @@
 
 package dev.teogor.querent.gradle
 
-import com.google.devtools.ksp.gradle.KspGradleSubplugin
+import dev.teogor.querent.commons.QuerentConstants
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompileTool
 import java.io.File
 import java.nio.file.Paths
 
-internal fun SubpluginOption.toArg() = "plugin:${KspGradleSubplugin.KSP_PLUGIN_ID}:$key=$value"
+internal fun SubpluginOption.toArg() = "plugin:${QuerentConstants.PLUGIN_ID}:$key=$value"
 
 internal fun File.isParentOf(childCandidate: File): Boolean {
   val parentPath = Paths.get(this.absolutePath).normalize()
