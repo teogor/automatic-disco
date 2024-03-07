@@ -18,7 +18,7 @@ fun isProductionEnvironment(): Boolean {
 
 println("isVirtualEnvironment - ${isVirtualEnvironment()}")
 println("isProductionEnvironment - ${isProductionEnvironment()}")
-println("environment - ${"environment".toStringEnv()}")
+println("environment - ${"env".toStringEnv()}")
 
 pluginManagement {
   includeBuild("querent")
