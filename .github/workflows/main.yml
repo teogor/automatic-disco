@@ -13,6 +13,8 @@ on:
 jobs:
   publish-to-maven-local:
     environment: PRODUCTION
+    env:
+      PRODUCTION_ENV: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
