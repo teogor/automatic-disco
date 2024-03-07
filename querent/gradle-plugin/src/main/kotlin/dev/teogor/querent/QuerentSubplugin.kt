@@ -20,6 +20,7 @@ package dev.teogor.querent
 
 import com.google.devtools.ksp.gradle.KspTask
 import com.google.devtools.ksp.gradle.toSubpluginOptions
+import dev.teogor.querent.ktx.markResolvable
 import dev.teogor.querent.codegen.CodeGenerator
 import dev.teogor.querent.codegen.KspCodeOutputStreamMaker
 import dev.teogor.querent.codegen.model.CodeGenConfig
@@ -77,7 +78,7 @@ import org.jetbrains.kotlin.incremental.isKotlinFile
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.io.File
 
-class MyCompilerPlugin : KotlinCompilerPluginSupportPlugin {
+class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
   companion object {
     /**
      * TODO: Consider generating sourceSetName only for variants with dependencies.

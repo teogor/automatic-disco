@@ -35,15 +35,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.kotlin.dsl.create
 import java.io.File
 
-internal fun Configuration.markResolvable(): Configuration = apply {
-  isCanBeResolved = true
-  isCanBeConsumed = false
-  isVisible = false
-}
-
 class Plugin : Plugin<Project> {
-  private lateinit var kspConfigurations: KspConfigurations
-
   override fun apply(target: Project) {
     // kspConfigurations = KspConfigurations(target)
 

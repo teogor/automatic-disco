@@ -27,6 +27,7 @@ import com.google.devtools.ksp.gradle.KspTaskJS
 import com.google.devtools.ksp.gradle.KspTaskJvm
 import com.google.devtools.ksp.gradle.KspTaskMetadata
 import com.google.devtools.ksp.gradle.KspTaskNative
+import dev.teogor.querent.ktx.markResolvable
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -888,12 +889,6 @@ internal fun getCPChanges(
   } else {
     emptyList()
   }
-}
-
-internal fun Configuration.markResolvable(): Configuration = apply {
-  isCanBeResolved = true
-  isCanBeConsumed = false
-  isVisible = false
 }
 
 /**
