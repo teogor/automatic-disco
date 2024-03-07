@@ -3,10 +3,14 @@ fun String.toBooleanEnv(): Boolean {
   return envValue.lowercase() == "true"
 }
 
+fun String.toStringEnv(): String {
+  val envValue = System.getenv(this) ?: ""
+  return envValue.lowercase()
+}
+
 fun isVirtualEnvironment(): Boolean {
   return "CI".toBooleanEnv() || "CONDA".toBooleanEnv()
 }
-
 
 fun isProductionEnvironment(): Boolean {
   return "PRODUCTION_ENV".toBooleanEnv()
@@ -14,6 +18,7 @@ fun isProductionEnvironment(): Boolean {
 
 println("isVirtualEnvironment - ${isVirtualEnvironment()}")
 println("isProductionEnvironment - ${isProductionEnvironment()}")
+println("environment - ${"environment".toStringEnv()}")
 
 pluginManagement {
   includeBuild("querent")
