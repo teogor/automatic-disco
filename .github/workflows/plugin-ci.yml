@@ -35,5 +35,5 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Build with Gradle
+      - name: Build & Assemble Android App
         run: ./gradlew :examples:android-app:build
