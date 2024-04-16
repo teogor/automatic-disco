@@ -45,7 +45,7 @@ class LanguagesSchema(data: FoundationData) : Blueprint(data) {
 
   override fun isEnabled() = buildFeatures.languagesSchema
 
-  override fun CommonExtension<*, *, *, *, *>.finalizeDsl() {
+  override fun CommonExtension<*, *, *, *, *, *>.finalizeDsl() {
     rawResourceConfig = defaultConfig.resourceConfigurations.toMutableSet()
   }
 

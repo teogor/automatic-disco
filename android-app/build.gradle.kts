@@ -108,8 +108,6 @@ dependencies {
   implementation("dev.teogor.ceres:core-startup")
   implementation("dev.teogor.ceres:core-common")
 
-  querent("dev.teogor.ceres:bom:1.0.0-alpha04")
-
   implementation("org.threeten:threetenbp:1.6.8")
 
   implementation(libs.androidx.core.ktx)

@@ -33,6 +33,6 @@ internal fun File.isParentOf(childCandidate: File): Boolean {
   return childCandidatePath.startsWith(parentPath)
 }
 
-internal fun disableRunViaBuildToolsApi(kspTask: AbstractKotlinCompileTool<*>) {
-  kspTask.runViaBuildToolsApi.value(false).disallowChanges()
+internal fun disableRunViaBuildToolsApi(querentTask: AbstractKotlinCompileTool<*>) {
+  querentTask.runViaBuildToolsApi.value(false).disallowChanges()
 }

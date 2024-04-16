@@ -18,9 +18,8 @@
 
 package dev.teogor.querent.gradle
 
-import com.google.devtools.ksp.gradle.KspTask
+import com.google.devtools.ksp.gradle.KspGradleSubplugin
 import com.google.devtools.ksp.gradle.toSubpluginOptions
-import dev.teogor.querent.api.codegen.impl.initializePlugin
 import dev.teogor.querent.ktx.markResolvable
 import dev.teogor.querent.codegen.CodeGenerator
 import dev.teogor.querent.codegen.KspCodeOutputStreamMaker
@@ -28,9 +27,7 @@ import dev.teogor.querent.codegen.model.CodeGenConfig
 import dev.teogor.querent.common.AnyChanges
 import dev.teogor.querent.common.impl.CodeGeneratorImpl
 import dev.teogor.querent.commons.QuerentConstants
-import dev.teogor.querent.gradle.QuerentConfigurations
 import dev.teogor.querent.processors.KspToCodeGenDestinationsMapper
-import dev.teogor.querent.structures.BuildProfile
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -41,11 +38,13 @@ import org.gradle.api.artifacts.transform.TransformSpec
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.language.jvm.tasks.ProcessResources
+import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.SourcesChanges
@@ -58,11 +57,11 @@ import org.jetbrains.kotlin.gradle.internal.kapt.incremental.StructureTransformA
 import org.jetbrains.kotlin.gradle.internal.kapt.incremental.StructureTransformLegacyAction
 import org.jetbrains.kotlin.gradle.plugin.CompilerPluginConfig
 import org.jetbrains.kotlin.gradle.plugin.FilesSubpluginOption
+import org.jetbrains.kotlin.gradle.plugin.InternalSubpluginOption
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilationWithResources
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinCommonCompilation
@@ -74,11 +73,13 @@ import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompileTool
 import org.jetbrains.kotlin.gradle.tasks.BaseKotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.incremental.isJavaFile
 import org.jetbrains.kotlin.incremental.isKotlinFile
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.io.File
+import java.util.concurrent.Callable
 
 class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
   companion object {
@@ -131,6 +132,68 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
       sourceSetName: String,
       target: String,
     ) = File(project.project.buildDir, "kspCaches/$target/$sourceSetName")
+
+    @JvmStatic
+    private fun getSubpluginOptions(
+      project: Project,
+      querentExtension: QuerentExtension,
+      sourceSetName: String,
+      target: String,
+      isIncremental: Boolean,
+      allWarningsAsErrors: Boolean,
+      commandLineArgumentProviders: ListProperty<CommandLineArgumentProvider>,
+      commonSources: List<File>,
+    ): List<SubpluginOption> {
+      val options = mutableListOf<SubpluginOption>()
+      options +=
+        InternalSubpluginOption("classOutputDir", KspGradleSubplugin.getKspClassOutputDir(project, sourceSetName, target).path)
+      options +=
+        InternalSubpluginOption("javaOutputDir", KspGradleSubplugin.getKspJavaOutputDir(project, sourceSetName, target).path)
+      options +=
+        InternalSubpluginOption("kotlinOutputDir", KspGradleSubplugin.getKspKotlinOutputDir(project, sourceSetName, target).path)
+      options += InternalSubpluginOption(
+        "resourceOutputDir",
+        KspGradleSubplugin.getKspResourceOutputDir(project, sourceSetName, target).path
+      )
+      options += InternalSubpluginOption("cachesDir", KspGradleSubplugin.getKspCachesDir(project, sourceSetName, target).path)
+      options += InternalSubpluginOption("kspOutputDir", KspGradleSubplugin.getKspOutputDir(project, sourceSetName, target).path)
+      options += SubpluginOption("incremental", isIncremental.toString())
+      options += SubpluginOption(
+        "incrementalLog",
+        project.findProperty("ksp.incremental.log")?.toString() ?: "false"
+      )
+      options += InternalSubpluginOption("projectBaseDir", project.project.projectDir.canonicalPath)
+      options += SubpluginOption("allWarningsAsErrors", allWarningsAsErrors.toString())
+      // Turn this on by default to work KT-30172 around. It is off by default in the compiler plugin.
+      options += SubpluginOption(
+        "returnOkOnError",
+        project.findProperty("ksp.return.ok.on.error")?.toString() ?: "true"
+      )
+      commonSources.ifNotEmpty {
+        options += FilesSubpluginOption("commonSources", this)
+      }
+
+      querentExtension.apOptions.forEach {
+        options += SubpluginOption("apoption", "${it.key}=${it.value}")
+      }
+      options += SubpluginOption(
+        "excludedProcessors",
+        querentExtension.excludedProcessors.joinToString(":")
+      )
+      options += SubpluginOption(
+        "mapAnnotationArgumentsInJava",
+        project.findProperty("ksp.map.annotation.arguments.in.java")?.toString() ?: "false"
+      )
+      commandLineArgumentProviders.get().forEach {
+        it.asArguments().forEach { argument ->
+          if (!argument.matches(Regex("\\S+=\\S+"))) {
+            throw IllegalArgumentException("KSP apoption does not match \\S+=\\S+: $argument")
+          }
+          options += InternalSubpluginOption("apoption", argument)
+        }
+      }
+      return options
+    }
   }
 
   private lateinit var querentConfigurations: QuerentConfigurations
@@ -172,13 +235,11 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
     val kotlinCompileProvider: TaskProvider<AbstractKotlinCompileTool<*>> =
       project.locateTask(kotlinCompilation.compileKotlinTaskName)
         ?: return project.provider { emptyList() }
+    val querentExtension = project.extensions.getByType(QuerentExtension::class.java)
     val kspConfigurations = querentConfigurations.find(kotlinCompilation)
-    println("kspConfigurations -> ${kspConfigurations.toList()}")
-    println("kspConfigurations -> ${kspConfigurations.toList().map { it.allDependencies.toList() }}")
     val nonEmptyKspConfigurations = kspConfigurations.filter { it.allDependencies.isNotEmpty() }
     if (nonEmptyKspConfigurations.isEmpty()) {
-      // todo
-      //  return project.provider { emptyList() }
+       return project.provider { emptyList() }
     }
     if (kotlinCompileProvider.name == "compileKotlinMetadata") {
       return project.provider { emptyList() }
@@ -195,7 +256,7 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
     val resourceOutputDir = getKspResourceOutputDir(project, sourceSetName, target)
     val kspOutputDir = getKspOutputDir(project, sourceSetName, target)
 
-    println("kotlinCompilationTarget=${kotlinCompilation.target}")
+    println("kotlinCompilationTarget=${kotlinCompilation.target.name}")
 
     findJavaTaskForKotlinCompilation(kotlinCompilation)?.configure(
       object : Action<JavaCompile> {
@@ -213,99 +274,100 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
     )?.toString() ?: "traditional"
 
     assert(kotlinCompileProvider.name.startsWith("compile"))
-    val kspTaskName = kotlinCompileProvider.name.replaceFirst("compile", "ksp")
+    val querentTaskName = kotlinCompileProvider.name.replaceFirst("compile", "ksp")
 
     val processorClasspath = project.configurations
-      .maybeCreate("${kspTaskName}ProcessorClasspath")
+      .maybeCreate("${querentTaskName}ProcessorClasspath")
       .extendsFrom(*nonEmptyKspConfigurations.toTypedArray()).markResolvable()
 
-    fun configureAsKspTask(kspTask: Task, isIncremental: Boolean) {
+    fun configureAsQuerentTask(querentTask: QuerentTask, isIncremental: Boolean) {
       // depends on the processor; if the processor changes, it needs to be reprocessed.
-      kspTask.dependsOn(processorClasspath.buildDependencies)
-      // kspTask.commandLineArgumentProviders.addAll(kspExtension.commandLineArgumentProviders)
+      querentTask.dependsOn(processorClasspath.buildDependencies)
+      querentTask.commandLineArgumentProviders.addAll(querentExtension.commandLineArgumentProviders)
 
-      // kspTask.options.addAll(
-      //   kspTask.project.provider {
-      //     getSubpluginOptions(
-      //       project = project,
-      //       sourceSetName = sourceSetName,
-      //       target = target,
-      //       isIncremental = isIncremental,
-      //       allWarningsAsErrors = true,
-      //       commandLineArgumentProviders = kspTask.commandLineArgumentProviders,
-      //       commonSources = emptyList(),
-      //     )
-      //   }
-      // )
-      // kspTask.inputs.property("apOptions", kspExtension.arguments)
-      kspTask.inputs.files(processorClasspath).withNormalizer(ClasspathNormalizer::class.java)
+      querentTask.options.addAll(
+        querentTask.project.provider {
+          getSubpluginOptions(
+            project = project,
+            querentExtension = querentExtension,
+            sourceSetName = sourceSetName,
+            target = target,
+            isIncremental = isIncremental,
+            allWarningsAsErrors = true,
+            commandLineArgumentProviders = querentTask.commandLineArgumentProviders,
+            commonSources = emptyList(),
+          )
+        }
+      )
+      querentTask.inputs.property("apOptions", querentExtension.arguments)
+      querentTask.inputs.files(processorClasspath).withNormalizer(ClasspathNormalizer::class.java)
     }
-    //
-    // fun configureAsAbstractKotlinCompileTool(kspTask: AbstractKotlinCompileTool<*>) {
-    //   kspTask.destinationDirectory.set(kspOutputDir)
-    //   disableRunViaBuildToolsApi(kspTask)
-    //   kspTask.outputs.dirs(
-    //     kotlinOutputDir,
-    //     javaOutputDir,
-    //     classOutputDir,
-    //     resourceOutputDir
-    //   )
-    //
-    //   val kotlinCompileTask = kotlinCompileProvider.get()
-    //   if (kspExtension.allowSourcesFromOtherPlugins) {
-    //     fun setSource(source: FileCollection) {
-    //       // kspTask.setSource(source) would create circular dependency.
-    //       // Therefore we need to manually extract input deps, filter them, and tell kspTask.
-    //       kspTask.setSource(project.provider { source.files })
-    //       kspTask.dependsOn(project.provider { source.nonSelfDeps(kspTaskName) })
-    //     }
-    //
-    //     setSource(
-    //       kotlinCompileTask.sources.filter {
-    //         !kotlinOutputDir.isParentOf(it) && !javaOutputDir.isParentOf(it)
-    //       }
-    //     )
-    //     if (kotlinCompileTask is KotlinCompile) {
-    //       setSource(
-    //         kotlinCompileTask.javaSources.filter {
-    //           !kotlinOutputDir.isParentOf(it) && !javaOutputDir.isParentOf(it)
-    //         }
-    //       )
-    //     }
-    //   } else {
-    //     kotlinCompilation.allKotlinSourceSetsObservable.forAll { sourceSet ->
-    //       kspTask.setSource(
-    //         sourceSet.kotlin.srcDirs.filter {
-    //           !kotlinOutputDir.isParentOf(it) && !javaOutputDir.isParentOf(it)
-    //         }
-    //       )
-    //       kspTask.dependsOn(sourceSet.kotlin.nonSelfDeps(kspTaskName))
-    //     }
-    //   }
-    //
-    //   kspTask.libraries.setFrom(
-    //     kotlinCompileTask.project.files(
-    //       Callable {
-    //         kotlinCompileTask.libraries.filter {
-    //           // manually exclude KAPT generated class folder from class path snapshot.
-    //           // TODO: remove in 1.9.0.
-    //
-    //           !kspOutputDir.isParentOf(it) && !(it.isDirectory && it.listFiles()?.isEmpty() == true)
-    //         }
-    //       }
-    //     )
-    //   )
-    //   // kotlinc's incremental compilation isn't compatible with symbol processing in a few ways:
-    //   // * It doesn't consider private / internal changes when computing dirty sets.
-    //   // * It compiles iteratively; Sources can be compiled in different rounds.
-    //   (kspTask as? AbstractKotlinCompile<*>)?.incremental = false
-    // }
 
-    fun configurePluginOptions(kspTask: BaseKotlinCompile) {
-      kspTask.pluginOptions.add(
+    fun configureAsAbstractKotlinCompileTool(querentTask: AbstractKotlinCompileTool<*>) {
+      querentTask.destinationDirectory.set(kspOutputDir)
+      disableRunViaBuildToolsApi(querentTask)
+      querentTask.outputs.dirs(
+        kotlinOutputDir,
+        javaOutputDir,
+        classOutputDir,
+        resourceOutputDir
+      )
+
+      val kotlinCompileTask = kotlinCompileProvider.get()
+      if (querentExtension.allowSourcesFromOtherPlugins) {
+        fun setSource(source: FileCollection) {
+          // querentTask.setSource(source) would create circular dependency.
+          // Therefore we need to manually extract input deps, filter them, and tell querentTask.
+          querentTask.setSource(project.provider { source.files })
+          querentTask.dependsOn(project.provider { source.nonSelfDeps(querentTaskName) })
+        }
+
+        setSource(
+          kotlinCompileTask.sources.filter {
+            !kotlinOutputDir.isParentOf(it) && !javaOutputDir.isParentOf(it)
+          }
+        )
+        if (kotlinCompileTask is KotlinCompile) {
+          setSource(
+            kotlinCompileTask.javaSources.filter {
+              !kotlinOutputDir.isParentOf(it) && !javaOutputDir.isParentOf(it)
+            }
+          )
+        }
+      } else {
+        kotlinCompilation.allKotlinSourceSetsObservable.forAll { sourceSet ->
+          querentTask.setSource(
+            sourceSet.kotlin.srcDirs.filter {
+              !kotlinOutputDir.isParentOf(it) && !javaOutputDir.isParentOf(it)
+            }
+          )
+          querentTask.dependsOn(sourceSet.kotlin.nonSelfDeps(querentTaskName))
+        }
+      }
+
+      querentTask.libraries.setFrom(
+        kotlinCompileTask.project.files(
+          Callable {
+            kotlinCompileTask.libraries.filter {
+              // manually exclude KAPT generated class folder from class path snapshot.
+              // TODO: remove in 1.9.0.
+
+              !kspOutputDir.isParentOf(it) && !(it.isDirectory && it.listFiles()?.isEmpty() == true)
+            }
+          }
+        )
+      )
+      // kotlinc's incremental compilation isn't compatible with symbol processing in a few ways:
+      // * It doesn't consider private / internal changes when computing dirty sets.
+      // * It compiles iteratively; Sources can be compiled in different rounds.
+      (querentTask as? AbstractKotlinCompile<*>)?.incremental = false
+    }
+
+    fun configurePluginOptions(querentTask: BaseKotlinCompile) {
+      querentTask.pluginOptions.add(
         project.provider {
           CompilerPluginConfig().apply {
-            (kspTask as KspTask).options.get().forEach {
+            (querentTask as QuerentTask).options.get().forEach {
               addPluginArgument(QuerentConstants.PLUGIN_ID, it)
             }
           }
@@ -313,11 +375,11 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
       )
     }
 
-    fun configureLanguageVersion(kspTask: KotlinCompilationTask<*>) {
-      kspTask.compilerOptions.useK2.value(false)
+    fun configureLanguageVersion(querentTask: KotlinCompilationTask<*>) {
+      querentTask.compilerOptions.useK2.value(false)
       val languageVersion = kotlinCompilation.compilerOptions.options.languageVersion
       val progressiveMode = kotlinCompilation.compilerOptions.options.progressiveMode
-      kspTask.compilerOptions.languageVersion.value(
+      querentTask.compilerOptions.languageVersion.value(
         project.provider {
           languageVersion.orNull?.let { version ->
             if (version >= KotlinVersion.KOTLIN_2_0) {
@@ -330,7 +392,7 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
       )
 
       // Turn off progressive mode if we need to downgrade language version.
-      kspTask.compilerOptions.progressiveMode.value(
+      querentTask.compilerOptions.progressiveMode.value(
         project.provider {
           val compileLangVer = languageVersion.orNull ?: KotlinVersion.DEFAULT
           if (compileLangVer >= KotlinVersion.KOTLIN_2_0) {
@@ -351,178 +413,176 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
     val useKSP2 = project.findProperty("ksp.useKSP2")?.toString()?.toBoolean() ?: false
 
     // Create and configure KSP tasks.
-    val kspTaskProvider = project.tasks.register(kspTaskName)
-    configureAsKspTask(kspTaskProvider.get(), true)
-    // val kspTaskProvider = if (useKSP2) {
-    //   KspAATask.registerKspAATask(
-    //     kotlinCompilation,
-    //     kotlinCompileProvider,
-    //     processorClasspath,
-    //     kspExtension,
-    //   )
-    // } else {
-    //   when (kotlinCompilation.platformType) {
-    //     KotlinPlatformType.jvm, KotlinPlatformType.androidJvm -> {
-    //       KotlinFactories.registerKotlinJvmCompileTask(project, kspTaskName, kotlinCompilation)
-    //         .also {
-    //           it.configure(
-    //             object : Action<KspTaskJvm> {
-    //               override fun execute(kspTask: KspTaskJvm) {
-    //                 val kotlinCompileTask = kotlinCompileProvider.get() as KotlinCompile
-    //                 // maybeBlockOtherPlugins(kspTask as BaseKotlinCompile)
-    //                 // configureAsKspTask(kspTask, isIncremental)
-    //                 // configureAsAbstractKotlinCompileTool(kspTask as AbstractKotlinCompileTool<*>)
-    //                 configurePluginOptions(kspTask)
-    //                 configureLanguageVersion(kspTask)
-    //                 if (kspTask.classpathSnapshotProperties.useClasspathSnapshot.get() == false) {
-    //                   kspTask.compilerOptions.moduleName.convention(
-    //                     kotlinCompileTask.compilerOptions.moduleName.map { "$it-ksp" },
-    //                   )
-    //                 }
-    //
-    //                 kspTask.destination.value(kspOutputDir)
-    //
-    //                 val classStructureFiles = getClassStructureFiles(project, kspTask.libraries)
-    //                 kspTask.incrementalChangesTransformers.add(
-    //                   createIncrementalChangesTransformer(
-    //                     isIncremental,
-    //                     isIntermoduleIncremental,
-    //                     getKspCachesDir(project, sourceSetName, target),
-    //                     project.provider { classStructureFiles },
-    //                     project.provider { kspTask.libraries },
-    //                     project.provider { processorClasspath },
-    //                   ),
-    //                 )
-    //               }
-    //               // Don't support binary generation for non-JVM platforms yet.
-    //               // FIXME: figure out how to add user generated libraries.
-    //               kotlinCompilation.output.classesDirs.from(classOutputDir)
-    //             }
-    //           )
-    //         }
-    //     }
-    //
-    //     KotlinPlatformType.js, KotlinPlatformType.wasm -> {
-    //       KotlinFactories.registerKotlinJSCompileTask(project, kspTaskName, kotlinCompilation)
-    //         .also {
-    //           it.configure(
-    //             object : Action<KspTaskJS> {
-    //               override fun execute(kspTask: KspTaskJS) {
-    //                 val kotlinCompileTask = kotlinCompileProvider.get() as Kotlin2JsCompile
-    //                 // maybeBlockOtherPlugins(kspTask as BaseKotlinCompile)
-    //                 // configureAsKspTask(kspTask, isIncremental)
-    //                 // configureAsAbstractKotlinCompileTool(kspTask as AbstractKotlinCompileTool<*>)
-    //                 configurePluginOptions(kspTask)
-    //                 configureLanguageVersion(kspTask)
-    //
-    //                 kspTask.incrementalChangesTransformers.add(
-    //                   createIncrementalChangesTransformer(
-    //                     isIncremental,
-    //                     false,
-    //                     getKspCachesDir(project, sourceSetName, target),
-    //                     project.provider { project.files() },
-    //                     project.provider { project.files() },
-    //                     project.provider { processorClasspath },
-    //                   ),
-    //                 )
-    //               }
-    //             },
-    //           )
-    //         }
-    //     }
-    //
-    //     KotlinPlatformType.common -> {
-    //       KotlinFactories.registerKotlinMetadataCompileTask(project, kspTaskName, kotlinCompilation)
-    //         .also {
-    //           it.configure(
-    //             object : Action<KspTaskMetadata> {
-    //               override fun execute(kspTask: KspTaskMetadata) {
-    //                 // maybeBlockOtherPlugins(kspTask as BaseKotlinCompile)
-    //                 // configureAsKspTask(kspTask, isIncremental)
-    //                 // configureAsAbstractKotlinCompileTool(kspTask as AbstractKotlinCompileTool<*>)
-    //                 configurePluginOptions(kspTask)
-    //                 configureLanguageVersion(kspTask)
-    //
-    //                 kspTask.incrementalChangesTransformers.add(
-    //                   createIncrementalChangesTransformer(
-    //                     isIncremental,
-    //                     false,
-    //                     getKspCachesDir(project, sourceSetName, target),
-    //                     project.provider { project.files() },
-    //                     project.provider { project.files() },
-    //                     project.provider { processorClasspath },
-    //                   ),
-    //                 )
-    //               }
-    //             },
-    //           )
-    //         }
-    //     }
-    //
-    //     KotlinPlatformType.native -> {
-    //       KotlinFactories.registerKotlinNativeCompileTask(project, kspTaskName, kotlinCompilation)
-    //         .also {
-    //           it.configure(
-    //             object : Action<KspTaskNative> {
-    //               override fun execute(kspTask: KspTaskNative) {
-    //                 val kotlinCompileTask = kotlinCompileProvider.get() as KotlinNativeCompile
-    //                 configureAsKspTask(kspTask, false)
-    //                 configureAsAbstractKotlinCompileTool(kspTask)
-    //
-    //                 val useEmbeddable =
-    //                   project.findProperty("kotlin.native.useEmbeddableCompilerJar")
-    //                     ?.toString()?.toBoolean() ?: true
-    //                 val classpathCfg = if (useEmbeddable) {
-    //                   kspClasspathCfg
-    //                 } else {
-    //                   kspClasspathCfgNonEmbeddable
-    //                 }
-    //                 // KotlinNativeCompile computes -Xplugin=... from compilerPluginClasspath.
-    //                 if (kspExtension.blockOtherCompilerPlugins) {
-    //                   kspTask.compilerPluginClasspath = classpathCfg
-    //                 } else {
-    //                   kspTask.compilerPluginClasspath =
-    //                     classpathCfg + kotlinCompileTask.compilerPluginClasspath!!
-    //                   kspTask.compilerPluginOptions.addPluginArgument(kotlinCompileTask.compilerPluginOptions)
-    //                 }
-    //                 kspTask.commonSources.from(kotlinCompileTask.commonSources)
-    //                 kspTask.options.add(
-    //                   FileCollectionSubpluginOption.create(
-    //                     project = project,
-    //                     name = "apclasspath",
-    //                     classpath = processorClasspath,
-    //                   ),
-    //                 )
-    //                 kspTask.compilerOptions.freeCompilerArgs.addAll(
-    //                   kspTask.options.map {
-    //                     it.flatMap { listOf("-P", it.toArg()) }
-    //                   },
-    //                 )
-    //                 kspTask.compilerOptions.freeCompilerArgs.addAll(
-    //                   kotlinCompileTask.compilerOptions.freeCompilerArgs,
-    //                 )
-    //                 configureLanguageVersion(kspTask)
-    //                 // Cannot use lambda; See below for details.
-    //                 // https://docs.gradle.org/7.2/userguide/validation_problems.html#implementation_unknown
-    //                 kspTask.doFirst(
-    //                   object : Action<Task> {
-    //                     override fun execute(t: Task) {
-    //                       kspOutputDir.deleteRecursively()
-    //                     }
-    //                   },
-    //                 )
-    //               }
-    //             },
-    //           )
-    //         }
-    //     }
-    //     // No else; The cases should be exhaustive
-    //   }
-    // }
+    val querentTaskProvider = if (useKSP2) {
+      KspAATask.registerKspAATask(
+        kotlinCompilation,
+        kotlinCompileProvider,
+        processorClasspath,
+        querentExtension,
+      )
+    } else {
+      when (kotlinCompilation.platformType) {
+        KotlinPlatformType.jvm, KotlinPlatformType.androidJvm -> {
+          KotlinFactories.registerKotlinJvmCompileTask(project, querentTaskName, kotlinCompilation)
+            .also {
+              it.configure(
+                object : Action<QuerentTaskJvm> {
+                  override fun execute(querentTask: QuerentTaskJvm) {
+                    val kotlinCompileTask = kotlinCompileProvider.get() as KotlinCompile
+                    // maybeBlockOtherPlugins(querentTask as BaseKotlinCompile)
+                    // configureAsQuerentTask(querentTask, isIncremental)
+                    // configureAsAbstractKotlinCompileTool(querentTask as AbstractKotlinCompileTool<*>)
+                    configurePluginOptions(querentTask)
+                    configureLanguageVersion(querentTask)
+                    if (querentTask.classpathSnapshotProperties.useClasspathSnapshot.get() == false) {
+                      querentTask.compilerOptions.moduleName.convention(
+                        kotlinCompileTask.compilerOptions.moduleName.map { "$it-ksp" },
+                      )
+                    }
+
+                    querentTask.destination.value(kspOutputDir)
+
+                    val classStructureFiles = getClassStructureFiles(project, querentTask.libraries)
+                    querentTask.incrementalChangesTransformers.add(
+                      createIncrementalChangesTransformer(
+                        isIncremental,
+                        isIntermoduleIncremental,
+                        getKspCachesDir(project, sourceSetName, target),
+                        project.provider { classStructureFiles },
+                        project.provider { querentTask.libraries },
+                        project.provider { processorClasspath },
+                      ),
+                    )
+                  }
+                  // Don't support binary generation for non-JVM platforms yet.
+                  // FIXME: figure out how to add user generated libraries.
+                  kotlinCompilation.output.classesDirs.from(classOutputDir)
+                }
+              )
+            }
+        }
+
+        KotlinPlatformType.js, KotlinPlatformType.wasm -> {
+          KotlinFactories.registerKotlinJSCompileTask(project, querentTaskName, kotlinCompilation)
+            .also {
+              it.configure(
+                object : Action<QuerentTaskJS> {
+                  override fun execute(querentTask: QuerentTaskJS) {
+                    val kotlinCompileTask = kotlinCompileProvider.get() as Kotlin2JsCompile
+                    // maybeBlockOtherPlugins(querentTask as BaseKotlinCompile)
+                    // configureAsQuerentTask(querentTask, isIncremental)
+                    // configureAsAbstractKotlinCompileTool(querentTask as AbstractKotlinCompileTool<*>)
+                    configurePluginOptions(querentTask)
+                    configureLanguageVersion(querentTask)
+
+                    querentTask.incrementalChangesTransformers.add(
+                      createIncrementalChangesTransformer(
+                        isIncremental,
+                        false,
+                        getKspCachesDir(project, sourceSetName, target),
+                        project.provider { project.files() },
+                        project.provider { project.files() },
+                        project.provider { processorClasspath },
+                      ),
+                    )
+                  }
+                },
+              )
+            }
+        }
+
+        KotlinPlatformType.common -> {
+          KotlinFactories.registerKotlinMetadataCompileTask(project, querentTaskName, kotlinCompilation)
+            .also {
+              it.configure(
+                object : Action<QuerentTaskMetadata> {
+                  override fun execute(querentTask: QuerentTaskMetadata) {
+                    // maybeBlockOtherPlugins(querentTask as BaseKotlinCompile)
+                    // configureAsQuerentTask(querentTask, isIncremental)
+                    // configureAsAbstractKotlinCompileTool(querentTask as AbstractKotlinCompileTool<*>)
+                    configurePluginOptions(querentTask)
+                    configureLanguageVersion(querentTask)
+
+                    querentTask.incrementalChangesTransformers.add(
+                      createIncrementalChangesTransformer(
+                        isIncremental,
+                        false,
+                        getKspCachesDir(project, sourceSetName, target),
+                        project.provider { project.files() },
+                        project.provider { project.files() },
+                        project.provider { processorClasspath },
+                      ),
+                    )
+                  }
+                },
+              )
+            }
+        }
+
+        KotlinPlatformType.native -> {
+          KotlinFactories.registerKotlinNativeCompileTask(project, querentTaskName, kotlinCompilation)
+            .also {
+              it.configure(
+                object : Action<QuerentTaskNative> {
+                  override fun execute(querentTask: QuerentTaskNative) {
+                    val kotlinCompileTask = kotlinCompileProvider.get() as KotlinNativeCompile
+                    configureAsQuerentTask(querentTask, false)
+                    configureAsAbstractKotlinCompileTool(querentTask)
+
+                    val useEmbeddable =
+                      project.findProperty("kotlin.native.useEmbeddableCompilerJar")
+                        ?.toString()?.toBoolean() ?: true
+                    val classpathCfg = if (useEmbeddable) {
+                      kspClasspathCfg
+                    } else {
+                      kspClasspathCfgNonEmbeddable
+                    }
+                    // KotlinNativeCompile computes -Xplugin=... from compilerPluginClasspath.
+                    if (querentExtension.blockOtherCompilerPlugins) {
+                      querentTask.compilerPluginClasspath = classpathCfg
+                    } else {
+                      querentTask.compilerPluginClasspath =
+                        classpathCfg + kotlinCompileTask.compilerPluginClasspath!!
+                      querentTask.compilerPluginOptions.addPluginArgument(kotlinCompileTask.compilerPluginOptions)
+                    }
+                    querentTask.commonSources.from(kotlinCompileTask.commonSources)
+                    querentTask.options.add(
+                      FileCollectionSubpluginOption.create(
+                        project = project,
+                        name = "apclasspath",
+                        classpath = processorClasspath,
+                      ),
+                    )
+                    querentTask.compilerOptions.freeCompilerArgs.addAll(
+                      querentTask.options.map {
+                        it.flatMap { listOf("-P", it.toArg()) }
+                      },
+                    )
+                    querentTask.compilerOptions.freeCompilerArgs.addAll(
+                      kotlinCompileTask.compilerOptions.freeCompilerArgs,
+                    )
+                    configureLanguageVersion(querentTask)
+                    // Cannot use lambda; See below for details.
+                    // https://docs.gradle.org/7.2/userguide/validation_problems.html#implementation_unknown
+                    querentTask.doFirst(
+                      object : Action<Task> {
+                        override fun execute(t: Task) {
+                          kspOutputDir.deleteRecursively()
+                        }
+                      },
+                    )
+                  }
+                },
+              )
+            }
+        }
+        // No else; The cases should be exhaustive
+      }
+    }
 
     val generatedSources = arrayOf(
-      project.files(kotlinOutputDir).builtBy(kspTaskProvider),
-      project.files(javaOutputDir).builtBy(kspTaskProvider),
+      project.files(kotlinOutputDir).builtBy(querentTaskProvider),
+      project.files(javaOutputDir).builtBy(querentTaskProvider),
     )
     if (kotlinCompilation is KotlinCommonCompilation) {
       // Do not add generated sources to common source sets.
@@ -558,7 +618,7 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
     project.locateTask<ProcessResources>(processResourcesTaskName)?.configure(
       object : Action<ProcessResources> {
         override fun execute(resourcesTask: ProcessResources) {
-          resourcesTask.from(project.files(resourceOutputDir).builtBy(kspTaskProvider))
+          resourcesTask.from(project.files(resourceOutputDir).builtBy(querentTaskProvider))
         }
       },
     )
@@ -566,7 +626,7 @@ class QuerentSubplugin : KotlinCompilerPluginSupportPlugin {
       AndroidPluginIntegration.syncSourceSets(
         project = project,
         kotlinCompilation = kotlinCompilation,
-        kspTaskProvider = kspTaskProvider,
+        querentTaskProvider = querentTaskProvider,
         javaOutputDir = javaOutputDir,
         kotlinOutputDir = kotlinOutputDir,
         classOutputDir = classOutputDir,
@@ -801,3 +861,8 @@ fun SourcesChanges.toSubpluginOptions(): List<SubpluginOption> {
     emptyList()
   }
 }
+
+internal fun FileCollection.nonSelfDeps(selfTaskName: String): List<Task> =
+  buildDependencies.getDependencies(null).filterNot {
+    it.name == selfTaskName
+  }
