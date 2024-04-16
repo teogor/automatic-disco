@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 teogor (Teodor Grigor)
+ * Copyright 2023 Teogor (Teodor Grigor)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

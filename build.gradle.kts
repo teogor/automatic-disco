@@ -23,13 +23,13 @@ buildscript {
 plugins {
   alias(libs.plugins.jetbrains.kotlin.jvm) apply true
   alias(libs.plugins.jetbrains.kotlin.serialization) apply false
-  alias(libs.plugins.jetbrains.kotlin.android) apply false
   alias(libs.plugins.jetbrains.dokka) apply true
   alias(libs.plugins.jetbrains.api.validator) apply true
   alias(libs.plugins.teogor.winds) apply true
   alias(libs.plugins.spotless) apply true
   alias(libs.plugins.vanniktech.maven) apply true
-  alias(libs.plugins.android.application) apply false
+  alias(libs.plugins.ben.manes.versions) apply true
+  alias(libs.plugins.littlerobots.version.catalog.update) apply true
 }
 
 subprojectChildrens {
@@ -154,7 +154,9 @@ subprojects {
             mapOf(
               "ktlint_code_style" to "ktlint_official",
               "ij_kotlin_allow_trailing_comma" to "true",
-              "standard:comment-wrapping" to "false",
+              // These rules were introduced in ktlint 0.46.0 and should not be
+              // enabled without further discussion. They are disabled for now.
+              // See: https://github.com/pinterest/ktlint/releases/tag/0.46.0
               "disabled_rules" to
                 "filename," +
                 "annotation,annotation-spacing," +
@@ -171,8 +173,7 @@ subprojects {
                 "unary-op-spacing," +
                 "no-trailing-spaces," +
                 "no-wildcard-imports," +
-                "max-line-length," +
-                "standard:comment-wrapping,",
+                "max-line-length",
             ),
           )
         licenseHeaderFile(rootProject.file("spotless/copyright.kt"))
@@ -205,5 +206,16 @@ apiValidation {
 subprojects {
   if (!excludedProjects.contains(project.name)) {
     apply<DokkaPlugin>()
+  }
+}
+
+versionCatalogUpdate {
+  keep {
+    // keep versions without any library or plugin reference
+    keepUnusedVersions = true
+    // keep all libraries that aren't used in the project
+    keepUnusedLibraries = true
+    // keep all plugins that aren't used in the project
+    keepUnusedPlugins = true
   }
 }
